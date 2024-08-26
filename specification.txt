@@ -1,0 +1,73 @@
+I am building a customer relationship management (CRM) app
+
+my goals for this project are to:
+# develop a full customer relationships system (understand what it is and what it needs, specify later)
+
+# use react hooks (generaly means build this with react, this is a great project to get better with react development)
+
+# the use of APIs in my project (expanding API usage, need to look for an email API, a data analysis API, and a payment API, and whatever else will be cool)
+
+# I'll be using React for my frontend development, and Node, Express, and MongoDB for my backend.
+
+TODO: 
+
+Look up information about customer relationship apps and how they look like
+
+Make sure I have react-router-dom and axios for my project
+
+Finish Auth Page.
+    -Can create account and log in. DONE
+        -An account consists of a first and last name, email, company name, password and password confirmation. 
+    -Style page LATER
+    -Finish the auth service.
+        -The auth service needs to contain all functions related to user authentication. the functions are:
+        1: A function that takes a user and returns a boolean value if user is found in database
+            - DONE And refactored to take the user array, a user email and a password as arguments and try to return that user's data if found
+        2: A function that redirects user to login page if they are not signed in DONE
+
+Build landing page. 
+    - Has a navbar with the name and logo of the product. DONE FIX DROPDOWN UI
+    - Has text that greets the user and explais about the product.
+    - Navbar start big and becomes smaller when you scroll down a bit.
+    
+Build a customers page. 
+    - a customer management system that can add, remove, edit and delete customers. 
+    - customers have a name, a company and more.
+        Specification:
+    1: Will have 3 tabs, showing assigned customers, unassigned customers, and all customers (maybe unecessary)
+    1.1: Assinged customers will contain their name, their email, their phone number, lead status, date created, Job Title, Industry 
+    1.2: Leads can have a status of New, Open, In Progress, Open deal, Unqualified, Attempted to contact, Connected 
+    1.3: Add a create contact button. Styling it as a popup window that slides from the side is cool. Has fields for adding email, first and last name, phone number, and lead status
+
+    TODO IN FUTURE: Build a customer info page, with more info about a specific customer and more ways to contact them
+
+Build a sales page.
+    - This page keeps track on the stages of a sale.
+    - Sales have status, buyer name, buyer id, sale amount (probably, not final), and more. 
+    Specification:
+    1: Like in customer page, we will display information about sales thet are going on. Sales have a sale name, deal stage, Amount, Close Date, Sale Type (dropdown with blank, new business, existing business), and priority (blank, low, medium, high), and an option to associate sale with a customer or company.
+    1.1: Sales stages are: Connect, Uncover challenges, Identify & Present Solutions, Quote Received, Close, Expand, Closed Lost
+    1.2: You can drag and drop sales through different stages, and the amount and status for the deal will be updated accordingly
+
+Build a tasks page. 
+    - This page helps you manage tasks, and allocate these tasks to users. I guess this page keeps track on who's doing what. 
+    Specification:
+    1: Tasks will have tabs for the task priority(low, med, high, urgent), task date,  Account Name (company or body associated with task), tast status (not started, waiting, in progress), a description of task, task type, and who task is assigned to
+
+Build a dashboard page.
+    - This page will display data in graphs or pie charts or any other data display shape to the user. Data on sales performances and activities.
+    Specification:
+    1: We need to display data that we collect. Info about ongoing sales, tasks and their status, and more
+
+Once completed, I will get this project on the air on a website hoster.
+
+For the backend I will need to create a REST API with Express.js. 
+I need to configure endpoints for users customers, tasks and sales. 
+Integrate MongoDB (of course)
+
+Integrations: 
+EMAIL: I need to send emails to the user. Specification manual says SendGrid can be used.
+DATA ANALYSIS: I need to collect and and analyse user data.
+PAYMENT: I need to integrate stripe or paypal to accept payment from user. Could be fun.
+
+I also need to configure CI/CD (Continuous Integration, Continuous Deployment) for this project. Don't know the first thing about it, but I'll see when I get there

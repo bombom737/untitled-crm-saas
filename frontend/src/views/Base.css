@@ -1,0 +1,26 @@
+/* Base css for all pages */
+html, body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-container {
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    background-color: white;
+    left: 0;
+}
+
+.white-background{
+    width: 97vw;
+    height: 90vh;
+    background-color: white;
+    position: absolute;
+    margin: 30px;
+    top: 40px;
+    left: 0;
+    border-radius: 10px;
+}
