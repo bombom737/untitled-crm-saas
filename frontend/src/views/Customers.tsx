@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Customer } from '../interfaces/customerInterface';
+import { addCustomer, removeCustomer, getCustomerArray } from '../db-like/customerArray';
 import CustomerCard from '../components/CustomerCard';
 
 export default function Customers() {
@@ -8,8 +9,6 @@ export default function Customers() {
   const phoneNumberRef = useRef<HTMLInputElement>(null);
   const jobTitleRef = useRef<HTMLInputElement>(null);
   const industryRef = useRef<HTMLInputElement>(null);
-
-  const [customerArray , setcustomerArray] = useState<Array<Customer>>([]);
 
   const [errors, setErrors] = useState({
     name: false,
@@ -29,6 +28,14 @@ export default function Customers() {
     'Attempted To Contact',
     'Connected',
   ]);
+
+    // State to store customer array
+    const [customerArray, setCustomerArray] = useState<Customer[]>([]);
+
+    // Load customers from localStorage on component mount
+    useEffect(() => {
+      setCustomerArray(getCustomerArray());
+    }, []);
 
   const validateInput = (value: string, validationFn: (value: string) => boolean) => {
     return validationFn(value);
@@ -82,11 +89,16 @@ export default function Customers() {
         industry: industryRef.current?.value || "",
       };  
       alert('Successfully created customer! ' + JSON.stringify(newCustomer));
-      console.log(newCustomer);
-      setcustomerArray([...customerArray, newCustomer]);
+      addCustomer(newCustomer);
+      setCustomerArray(getCustomerArray()); // Update the state
     } else {
       alert('Error creating customer,' + JSON.stringify(errors));
     }
+  }
+  
+  function handleRemoveCustomer(customer: Customer) {
+    removeCustomer(customer);
+    setCustomerArray(getCustomerArray()); // Update the state
   }
 
   return (
@@ -137,7 +149,18 @@ export default function Customers() {
       <button onClick={createCustomer}>Create Customer</button>
     </div>
   </form>
-  {customerArray.length > 0 ? <div>{customerArray.map((customer, index) => <CustomerCard key={index} customer={customer} />)}</div> : <div>No customers saved. start by creating a customer!</div>}
+  {customerArray.length > 0 ? (
+        <div>
+          {customerArray.map((customer, index) => (
+            <div key={index}>
+              <CustomerCard customer={customer} />
+              <button onClick={() => handleRemoveCustomer(customer)}>Remove</button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div>No customers saved. Start by creating a customer!</div>
+      )}
 </div>
 
   );

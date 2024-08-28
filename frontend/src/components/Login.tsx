@@ -7,7 +7,7 @@ export function Login() {
   const navigate = useNavigate();
   const formInput = useRef<HTMLInputElement>(null);
 
-  //async 
+  //make asynchronous when posting to a database
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); // prevent screen refresh and loss of data
 
