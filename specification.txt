@@ -37,7 +37,20 @@ Build a customers page.
     1: Will have 3 tabs, showing assigned customers, unassigned customers, and all customers (maybe unecessary)
     1.1: Assinged customers will contain their name, their email, their phone number, lead status, date created, Job Title, Industry 
     1.2: Leads can have a status of New, Open, In Progress, Open deal, Unqualified, Attempted to contact, Connected 
-    1.3: Add a create contact button. Styling it as a popup window that slides from the side is cool. Has fields for adding email, first and last name, phone number, and lead status
+    1.3: Add a create contact button. Styling it as a popup window that slides from the side is cool.
+    1.4: All customer info will be displayed in a graph of rows and columns. Each column will display a set of the info of all currently saved customers.
+	Visualization:
+	
+	|-------|-------|
+	| Names | Other |
+	|-------|-------|
+	| Name1	| Other1|
+	|-------|-------|
+	| Name2 | Other2|
+	|-------|-------|
+	|  Etc..| Other3|
+	|-------|-------|
+
 
     TODO IN FUTURE: Build a customer info page, with more info about a specific customer and more ways to contact them
 
