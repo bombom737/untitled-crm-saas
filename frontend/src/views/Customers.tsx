@@ -1,104 +1,144 @@
 import { useState, useRef } from 'react';
-
-//PROTOTYPE Will have to refine and refactor this code
-
-interface LeadStatus{
-    new: boolean;
-    open: boolean;
-    inProgress: boolean;
-    openDeal: boolean;
-    unqualified: boolean;
-    attemptedToContact: boolean;
-    connected: boolean;
-}
-
-interface Customer {
-    name: string;
-    email: string;
-    phoneNumber: string;
-    leadStatus: string;
-    dateCreated: "Creation date"; //Date.now() or something similar
-    jobTitle: string;
-    industry: string;
-    
-}
+import { Customer } from '../interfaces/customerInterface';
+import CustomerCard from '../components/CustomerCard';
 
 export default function Customers() {
-
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const phoneNumberRef = useRef<HTMLInputElement>(null);
   const jobTitleRef = useRef<HTMLInputElement>(null);
   const industryRef = useRef<HTMLInputElement>(null);
 
-  let customerArray:Array<Customer> = []
+  const [customerArray , setcustomerArray] = useState<Array<Customer>>([]);
 
-  const [leadStatus, setLeadStatus] = useState<LeadStatus>({
-    new: false,
-    open: false,
-    inProgress: false,
-    openDeal: false,
-    unqualified: false,
-    attemptedToContact: false,
-    connected: false,
-  });
+  const [errors, setErrors] = useState({
+    name: false,
+    email: false,
+    phoneNumber: false,
+    leadStatus: false,
+    jobTitle: false,
+    industry: false
+  })
+  const [currentLeadStatus, setCurrentLeadStatus] = useState<string>("");
+  const [possibleLeadStatus] = useState<Array<string>>([
+    'New',
+    'Open',
+    'In Progress',
+    'Open Deal',
+    'Unqualified',
+    'Attempted To Contact',
+    'Connected',
+  ]);
 
-  function handleCheckboxChange(status: keyof LeadStatus) {
-    // Reset all status values to false, then set the selected status to true
-    setLeadStatus({
-      new: false,
-      open: false,
-      inProgress: false,
-      openDeal: false,
-      unqualified: false,
-      attemptedToContact: false,
-      connected: false,
-      [status]: true, // Update the selected status
-    });
-    console.log(status)
+  const validateInput = (value: string, validationFn: (value: string) => boolean) => {
+    return validationFn(value);
   };
+
+  const conditions = {
+    name: (value: string) => value !== "",
+    email: (value: string) => value !== "",
+    phoneNumber: (value: string) => value !== "",
+    leadStatus: (value: string) => value !== "",
+    jobTitle: (value: string) => value !== "",
+    industry: (value: string) => value !== "",
+  };
+
+  // Perform all validations and return a boolean if all fields are valid
+  const handleValidation = () => {
+    const newErrors = {
+      name: !validateInput(nameRef.current?.value || "", conditions.name),
+      email: !validateInput(emailRef.current?.value || "", conditions.email),
+      phoneNumber: !validateInput(phoneNumberRef.current?.value || "", conditions.phoneNumber),
+      leadStatus: !validateInput(currentLeadStatus || "", conditions.leadStatus),
+      jobTitle: !validateInput(jobTitleRef.current?.value || "", conditions.jobTitle),
+      industry: !validateInput(industryRef.current?.value || "", conditions.industry)
+    };
+
+    setErrors(newErrors);
+    return Object.values(newErrors).every((error) => !error);
+  };
+
+  function toggleCheckbox(status: string) {
+    setCurrentLeadStatus(prevStatus => {
+      // Toggle the checkbox based on the previous status
+      const newStatus = prevStatus === status ? "" : status;
+      console.log(newStatus);
   
-  function createCustomer(e:any){
-    
-    e.preventDefault()
-    const customer: Customer ={
-      name: e.target.value,
-      email: e.target.value,
-      phoneNumber: e.target.value,
-      leadStatus: leadStatus.new === true ? 'New' : leadStatus.open === true ? 'Open' : leadStatus.inProgress === true ? 'In Progress' : leadStatus.openDeal === true ? 'Open Deal' : leadStatus.unqualified === true ? 'Unqualified' : leadStatus.attemptedToContact === true ? 'Attempted To Contact' : 'Connected', //find better way
-      dateCreated: "Creation date", //Date.now() or something similar
-      jobTitle: e.target.value,
-      industry: e.target.value,
-    }
-    alert('Successfully created customer! ' + customer)
-    console.log(customerArray)
+      return newStatus;
+    });
   }
+
+  function createCustomer(e: any) {
+    e.preventDefault();
+    if (handleValidation()) {
+      let date = new Date();
+      const newCustomer: Customer = {
+        name: nameRef.current?.value || "",
+        email: emailRef.current?.value || "",
+        phoneNumber: phoneNumberRef.current?.value || "",
+        leadStatus: currentLeadStatus,
+        dateCreated: `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getFullYear()}`,
+        jobTitle: jobTitleRef.current?.value || "",
+        industry: industryRef.current?.value || "",
+      };  
+      alert('Successfully created customer! ' + JSON.stringify(newCustomer));
+      console.log(newCustomer);
+      setcustomerArray([...customerArray, newCustomer]);
+    } else {
+      alert('Error creating customer,' + JSON.stringify(errors));
+    }
+  }
+
   return (
-    <div>
-      <div>Customers</div>
-      <form>
-        <div className="createCustomer">
-          <input type="text" placeholder="Enter customer name" ref={nameRef}/>
-          <input type="text" placeholder="Enter customer email" ref={emailRef}/>
-          <input type="text" placeholder="Enter customer phone number" ref={phoneNumberRef}/>
-          <label>Lead Status</label>
-          <div>
-            {Object.keys(leadStatus).map((key) => (
-              <div key={key}>
-                <input
-                  type="checkbox"
-                  checked={leadStatus[key as keyof LeadStatus]}
-                  onChange={() => handleCheckboxChange(key as keyof LeadStatus)}
-                />
-                <label>{key}</label>
-              </div>
-            ))}
+<div>
+  <div>Customers</div>
+  <form>
+    <div className="createCustomer">
+      <div>
+        <input type="text" placeholder="Enter customer name" ref={nameRef} />
+        {errors.name && <div style={{ color: 'red' }}>Please enter a name</div>}
+      </div>
+
+      <div>
+        <input type="text" placeholder="Enter customer email" ref={emailRef} />
+        {errors.email && <div style={{ color: 'red' }}>Please enter an email</div>}
+      </div>
+
+      <div>
+        <input type="text" placeholder="Enter customer phone number" ref={phoneNumberRef} />
+        {errors.phoneNumber && <div style={{ color: 'red' }}>Please enter a phone number</div>}
+      </div>
+
+      <label>Lead Status</label>
+      <div>
+        {possibleLeadStatus.map((status) => (
+          <div key={status}>
+            <input
+              type="checkbox"
+              checked={currentLeadStatus === status}
+              onChange={() => toggleCheckbox(status)}
+            />
+            <label>{status}</label>
           </div>
-          <input type="text" placeholder="Enter job title" ref={jobTitleRef}/>
-          <input type="text" placeholder="Enter industry" ref={industryRef}/>
-          <button onClick={createCustomer}>Create Customer</button>
-        </div>
-      </form>
+        ))}
+        {errors.leadStatus && <div style={{ color: 'red' }}>Please select a lead status</div>}
+      </div>
+
+      <div>
+        <input type="text" placeholder="Enter job title" ref={jobTitleRef} />
+        {errors.jobTitle && <div style={{ color: 'red' }}>Please enter a job title</div>}
+      </div>
+
+      <div>
+        <input type="text" placeholder="Enter industry" ref={industryRef} />
+        {errors.industry && <div style={{ color: 'red' }}>Please enter industry</div>}
+      </div>
+
+      <button onClick={createCustomer}>Create Customer</button>
     </div>
-  )
+  </form>
+  {customerArray.length > 0 ? <div>{customerArray.map((customer, index) => <CustomerCard key={index} customer={customer} />)}</div> : <div>No customers saved. start by creating a customer!</div>}
+</div>
+
+  );
 }
