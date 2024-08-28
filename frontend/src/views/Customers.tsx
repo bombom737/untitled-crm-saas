@@ -69,8 +69,6 @@ export default function Customers() {
     setCurrentLeadStatus(prevStatus => {
       // Toggle the checkbox based on the previous status
       const newStatus = prevStatus === status ? "" : status;
-      console.log(newStatus);
-  
       return newStatus;
     });
   }
