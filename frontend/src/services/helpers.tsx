@@ -3,6 +3,10 @@ export function getRandomId(min:number, max:number): number{
     return Math.trunc(Math.random() * (max - min) + min);
 }
 
+export function findItemById(id:number, array:any) {
+    return array.find((item: any) => item.id === id);
+}
+
 export function generateUniqueID(array: any, min:number, max:number) {
     // If all possible IDs are taken
     if (array.length >= max) {
@@ -22,8 +26,4 @@ export function generateUniqueID(array: any, min:number, max:number) {
     }
   
     return id;
-}
-
-export function findItemById(id:number, array:any) {
-    return array.find((item: any) => item.id === id);
 }
