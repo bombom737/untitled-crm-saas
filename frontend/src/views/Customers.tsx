@@ -80,8 +80,8 @@ export default function Customers() {
 
       let id:number | undefined = generateUniqueID(customerArray, 100000, 999999)
       //Ensure that all customers have unique IDs, quit if no free IDs are available
-      if(typeof id === undefined){
-        alert('Unable to create customer, all possible IDs are taken')
+      if (typeof id === undefined){
+        alert('Unable to create customer, all possible IDs are taken');
       } else {
         const newCustomer: Customer = {
           name: nameRef.current?.value || "",
