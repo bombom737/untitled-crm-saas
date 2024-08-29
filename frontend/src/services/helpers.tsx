@@ -22,8 +22,8 @@ export function generateUniqueID(array: any, min:number, max:number) {
     }
   
     return id;
-  }
+}
 
 export function findItemById(id:number, array:any) {
     return array.find((item: any) => item.id === id);
-  }
+}
