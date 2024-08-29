@@ -1,34 +1,28 @@
-import { Customer } from "../interfaces/interfaces";
-
-export function addToDatabase(customer: Customer, key:string): boolean {
+export function addToDatabase(item:any, key:string): boolean {
     const data = localStorage.getItem(key);
-    const parsedArray: Customer[] = data ? JSON.parse(data) : [];
+    const parsedArray: any[] = data ? JSON.parse(data) : [];
 
-    if(parsedArray.push(customer) === 0) {
+    if(parsedArray.push(item) === 0) {
         return false;
     }
     localStorage.setItem(key, JSON.stringify(parsedArray));
     return true;
 }
 
-export function removeFromDatabase(customer: Customer, key:string): boolean {
+export function removeFromDatabase(item:any, key:string): boolean {
     
     const data = localStorage.getItem(key);
-    const parsedArray: Customer[] = data ? JSON.parse(data) : [];
+    const parsedArray: [] = data ? JSON.parse(data) : [];
     
     if (parsedArray.length === 0) {
         return false;
     }
 
-    const customerIndex = parsedArray.findIndex(
-        (storedCustomer) =>
-            storedCustomer.name === customer.name &&
-            storedCustomer.email === customer.email &&
-            storedCustomer.phoneNumber === customer.phoneNumber
-    );
+    const itemIndex = parsedArray.findIndex(
+        (storedItem:any) => storedItem.id === item.id);
 
-    if (customerIndex !== -1) {
-        parsedArray.splice(customerIndex, 1);
+    if (itemIndex !== -1) {
+        parsedArray.splice(itemIndex, 1);
         localStorage.setItem(key, JSON.stringify(parsedArray));
         return true;
     }
@@ -36,11 +30,11 @@ export function removeFromDatabase(customer: Customer, key:string): boolean {
 }
 
 
-export function getDatabaseArray(key:string): Array<Customer> {
+export function getDatabaseArray(key:string): Array<any> {
     const data = localStorage.getItem(key);
     if(!data){
         return []
     }
-    const parsedArray: Customer[] = data ? JSON.parse(data) : [];
+    const parsedArray: [] = data ? JSON.parse(data) : [];
     return parsedArray
 }
