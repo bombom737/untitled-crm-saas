@@ -1,4 +1,4 @@
-import { Customer } from '../interfaces/customerInterface';
+import { Customer } from '../interfaces/interfaces';
 
 export default function CustomerCard({ customer }: { customer: Customer }) {
     return (

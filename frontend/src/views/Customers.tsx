@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Customer } from '../interfaces/customerInterface';
-import { addCustomer, removeCustomer, getCustomerArray } from '../db-like/customerArray';
+import { Customer } from '../interfaces/interfaces';
+import { addToDatabase, removeFromDatabase, getDatabaseArray } from '../db-like/localDb';
 import CustomerCard from '../components/CustomerCard';
+import { generateUniqueID } from '../services/helpers'
 
 export default function Customers() {
   const nameRef = useRef<HTMLInputElement>(null);
@@ -29,13 +30,13 @@ export default function Customers() {
     'Connected',
   ]);
 
-    // State to store customer array
-    const [customerArray, setCustomerArray] = useState<Customer[]>([]);
+  // State to store customer array
+  const [customerArray, setCustomerArray] = useState<Customer[]>([]);
 
-    // Load customers from localStorage on component mount
-    useEffect(() => {
-      setCustomerArray(getCustomerArray());
-    }, []);
+  // Load customers from localStorage on component mount
+  useEffect(() => {
+    setCustomerArray(getDatabaseArray('customerArray'));
+  }, []);
 
   const validateInput = (value: string, validationFn: (value: string) => boolean) => {
     return validationFn(value);
@@ -67,7 +68,6 @@ export default function Customers() {
 
   function toggleCheckbox(status: string) {
     setCurrentLeadStatus(prevStatus => {
-      // Toggle the checkbox based on the previous status
       const newStatus = prevStatus === status ? "" : status;
       return newStatus;
     });
@@ -77,26 +77,34 @@ export default function Customers() {
     e.preventDefault();
     if (handleValidation()) {
       let date = new Date();
-      const newCustomer: Customer = {
-        name: nameRef.current?.value || "",
-        email: emailRef.current?.value || "",
-        phoneNumber: phoneNumberRef.current?.value || "",
-        leadStatus: currentLeadStatus,
-        dateCreated: `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getFullYear()}`,
-        jobTitle: jobTitleRef.current?.value || "",
-        industry: industryRef.current?.value || "",
-      };  
-      alert('Successfully created customer! ' + JSON.stringify(newCustomer));
-      addCustomer(newCustomer);
-      setCustomerArray(getCustomerArray()); // Update the state
+
+      let id:number | undefined = generateUniqueID(customerArray, 100000, 999999)
+      //Ensure that all customers have unique IDs, quit if no free IDs are available
+      if(typeof id === undefined){
+        alert('Unable to create customer, all possible IDs are taken')
+      } else {
+        const newCustomer: Customer = {
+          name: nameRef.current?.value || "",
+          email: emailRef.current?.value || "",
+          phoneNumber: phoneNumberRef.current?.value || "",
+          leadStatus: currentLeadStatus,
+          dateCreated: `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getFullYear()}`,
+          jobTitle: jobTitleRef.current?.value || "",
+          industry: industryRef.current?.value || "",
+          customerId: id,
+        };  
+        alert('Successfully created customer! ' + JSON.stringify(newCustomer));
+        addToDatabase(newCustomer, 'customerArray');
+        setCustomerArray(getDatabaseArray('customerArray'));
+      }
     } else {
       alert('Error creating customer,' + JSON.stringify(errors));
     }
   }
   
-  function handleRemoveCustomer(customer: Customer) {
-    removeCustomer(customer);
-    setCustomerArray(getCustomerArray()); // Update the state
+  function handleremoveFromDatabase(customer: Customer) {
+    removeFromDatabase(customer, 'customerArray');
+    setCustomerArray(getDatabaseArray('customerArray'));
   }
 
   return (
@@ -152,7 +160,7 @@ export default function Customers() {
           {customerArray.map((customer, index) => (
             <div key={index}>
               <CustomerCard customer={customer} />
-              <button onClick={() => handleRemoveCustomer(customer)}>Remove</button>
+              <button onClick={() => handleremoveFromDatabase(customer)}>Remove</button>
             </div>
           ))}
         </div>
