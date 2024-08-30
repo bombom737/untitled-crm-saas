@@ -1,19 +1,23 @@
 import express from "express";
-import path from "path";
+import cookieParser from "cookie-parser";
+import app from "./app.js";
+import authRouter from "./controllers/auth.js";
+import cors from "cors";
+import mongoose from "./connection.js"
+import "dotenv/config";
 
-const app = express();
-const PORT = 3000;
+app.use(express.json())
+app.use(cookieParser())
 
-// Serve static files from the 'dist' or equivalent directory where your build files are located
-app.use(express.static(path.resolve(__dirname, 'dist')));
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    credentials: true
+}
+app.use(cors(corsOptions))
 
-// Serve the index.html file for any other route
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+app.use("/auth", authRouter);
+app.use("/", authRouter);
+
+app.listen(process.env.PORT, () => {
+    console.log(`Server is listening on port ${process.env.PORT}`);
 });
-
-app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
-});
-
-//UNFINISHED REST API CODE!! Need to finish react code first

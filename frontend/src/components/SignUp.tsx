@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import './SignUp.css';
+import { apiPost } from "../services/axios-api.tsx"
 
 interface User {
   firstName: string;
@@ -50,7 +51,7 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
       lastName: !validateInput(lastNameRef.current?.value || "", conditions.lastName),
       company: !validateInput(companyRef.current?.value || "", conditions.company),
       email: !validateInput(emailRef.current?.value || "", conditions.email),
-      password: !validateInput(passwordRef.current?.value || "", conditions.password),
+      password: errors.password,
       passConfirm: errors.passConfirm 
     };
 
@@ -58,26 +59,24 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
     return Object.values(newErrors).every((error) => !error);
   };
 
-  const handlePassConfirmChange = () => {
-    // Get the value of passConfirm and check the condition
-    const isPassConfirmValid = validateInput(passConfirmRef.current?.value || "", conditions.passConfirm);
+  function handlePasswordChange () {
+    // Get the value of password and check the condition
+    const isPasswordValid = !validateInput(passwordRef.current?.value || "", conditions.password)
   
-    // Update the errors state, keeping all errors as they are except passConfirm
+    // Update the errors state, keeping all errors as they are except password
     setErrors(prevErrors => ({
       ...prevErrors,
-      passConfirm: !isPassConfirmValid // If valid, set to false (no error), else set to true (error exists)
+      password: isPasswordValid // If valid, set to false (no error), else set to true (error exists)
     }));
   };
-
-  function saveUserToLocalStorage(user: User) {
-    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]") as User[];
-
-    if (!existingUsers.some(existingUser => existingUser.email === user.email)) {
-      existingUsers.push(user);
-      localStorage.setItem("users", JSON.stringify(existingUsers));
-      return true;
-    }
-    return false;
+  
+  function handlePassConfirmChange () {
+    const isPassConfirmValid = validateInput(passConfirmRef.current?.value || "", conditions.passConfirm);
+  
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      passConfirm: !isPassConfirmValid 
+    }));
   };
 
   function submit(e: React.FormEvent) {
@@ -90,12 +89,18 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
         email: emailRef.current?.value || "",
         password: passwordRef.current?.value || "", // Should hash the password later in DB
       };
-
-      if (saveUserToLocalStorage(newUser)) {
-        onSignUpSuccess();
-      } else {
-        alert("Already a user, log in!");
-      }
+      apiPost('/register', newUser)
+      .then((res) => {
+        if(res.status === 409){
+          alert("Already a user, log in!");
+          return
+        } else {
+          onSignUpSuccess();
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      })
     }}
 
 
@@ -121,7 +126,7 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
           {errors.email && <p className="error">Please enter a valid email.</p>}
         </div>
         <div className="field">
-          <input id="password" type="password" ref={passwordRef} placeholder="Password" onChange={handlePassConfirmChange}/>
+          <input id="password" type="password" ref={passwordRef} placeholder="Password" onChange={() => {handlePasswordChange();handlePassConfirmChange();}}/>
           {errors.password && (
             <p className="error">
               Password must be at least 8 characters long, and must contain an

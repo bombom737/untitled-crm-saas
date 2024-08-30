@@ -17,5 +17,5 @@ export interface Sale {
     saleType: string;
     priority: string;
     associatedWith: string;
-    customerId: number | undefined;
+    saleId: number | undefined;
 }
