@@ -21,6 +21,9 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
     passConfirm: false,
   });
 
+  //Manage the email taken error seperately because react 
+  const [emailTaken, setEmailTaken] = useState(false);
+
   const firstNameRef = useRef<HTMLInputElement>(null);
   const lastNameRef = useRef<HTMLInputElement>(null);
   const companyRef = useRef<HTMLInputElement>(null);
@@ -61,7 +64,7 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
 
   function handlePasswordChange () {
     // Get the value of password and check the condition
-    const isPasswordValid = !validateInput(passwordRef.current?.value || "", conditions.password)
+    const isPasswordValid = !validateInput(passwordRef.current?.value || "", conditions.password);
   
     // Update the errors state, keeping all errors as they are except password
     setErrors(prevErrors => ({
@@ -79,30 +82,33 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
     }));
   };
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
+    setEmailTaken(false)
     if (handleValidation()) {
       const newUser: User = {
         firstName: firstNameRef.current?.value || "",
         lastName: lastNameRef.current?.value || "",
         companyName: companyRef.current?.value || "",
         email: emailRef.current?.value || "",
-        password: passwordRef.current?.value || "", // Should hash the password later in DB
+        password: passwordRef.current?.value || ""
       };
-      apiPost('/register', newUser)
-      .then((res) => {
-        if(res.status === 409){
-          alert("Already a user, log in!");
-          return
-        } else {
-          onSignUpSuccess();
+  
+      try {
+        const response = await apiPost('/register', newUser);
+        console.log(response);
+        onSignUpSuccess();
+      } catch (error: any) {
+        if (error.response && error.response.status === 409) {
+          setEmailTaken(true)
         }
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-    }}
-
+        console.error('Error during registration:', error);
+      }
+    } else {
+      console.log("Validation failed: " + errors);
+    }
+  }
+  
 
   return (
     <form className="signup">
@@ -123,7 +129,11 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
         </div>
         <div className="field">
           <input id="email" type="text" ref={emailRef} placeholder="Email" />
-          {errors.email && <p className="error">Please enter a valid email.</p>}
+          {errors.email ? (
+            <p className="error">Please enter a valid email.</p>
+          ) : emailTaken ? (
+            <p className="error">This email is already taken.</p>
+          ) : null}
         </div>
         <div className="field">
           <input id="password" type="password" ref={passwordRef} placeholder="Password" onChange={() => {handlePasswordChange();handlePassConfirmChange();}}/>
