@@ -94,16 +94,19 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
         password: passwordRef.current?.value || ""
       };
   
-      try {
-        const response = await apiPost('/register', newUser);
-        console.log(response);
+      apiPost('/register', newUser)
+      .then(() => {
         onSignUpSuccess();
-      } catch (error: any) {
+      })
+      .catch((error) => {
         if (error.response && error.response.status === 409) {
           setEmailTaken(true)
+          console.error('Error during registration:', error);
+        } else{
+          console.log("Validation failed: " + errors);
+
         }
-        console.error('Error during registration:', error);
-      }
+      });
     } else {
       console.log("Validation failed: " + errors);
     }
