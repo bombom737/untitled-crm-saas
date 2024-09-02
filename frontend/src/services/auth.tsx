@@ -1,10 +1,8 @@
-export function userExists(userArray:Array<string>, email:string, password:string) { // in the future i will post to the database to see if the input user exists in database
-    return userArray.find((user:any) => user.email === email && user.password === password)
-}
+import { isLoggedIn } from "./axios-api";
 
-export function redirectUser(navigate: Function) {
-    const user = localStorage.getItem('currentlyLoggedInUser');
-    if (!user) {
+export async function redirectUser(navigate: Function) {
+  let loggedInStatus:boolean = await isLoggedIn()  
+  if (!loggedInStatus) {
       navigate('/');
       return true; // Redirect to login page if no user is logged in
     }

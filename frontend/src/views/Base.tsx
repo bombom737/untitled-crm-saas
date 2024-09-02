@@ -13,17 +13,16 @@ export default function Base({ viewComponent }: BaseProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loggedInStatus = localStorage.getItem('isLoggedIn');
-    
-    if (loggedInStatus === 'true') {
-      setIsLoading(false);
-    } else {
-      if (!redirectUser(navigate)) {
-        localStorage.setItem('isLoggedIn', 'true');
+    async function checkRedirect() {
+      const shouldRedirect = await redirectUser(navigate);
+      if (shouldRedirect === false) {
         setIsLoading(false);
       }
     }
+  
+    checkRedirect();
   }, [navigate]);
+  
 
   function getUser() {
     let user = JSON.parse(localStorage.getItem('currentlyLoggedInUser') || '{}');

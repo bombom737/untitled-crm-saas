@@ -9,7 +9,18 @@ export function apiFetch(route: string) {
 }
 
 export async function isLoggedIn() {
-    const response = await apiFetch("auth/is-logged-in")
+    const response = await apiFetch("/auth/is-logged-in")
     const loggedIn = response.data
     return loggedIn
+}
+
+export async function logOut() {    
+    try {
+        const response = await apiFetch("/auth/logout");
+        const loggedOut = response.data;
+        return loggedOut;
+    } catch (error) {
+        console.error('Error during logout:', error);
+        return false;
+    }
 }

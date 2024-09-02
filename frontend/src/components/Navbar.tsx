@@ -4,6 +4,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { logOut } from '../services/axios-api';
 
 interface Props {
   username: string;
@@ -23,11 +24,17 @@ const NavbarDarkExample: React.FC<Props> = ({ username }) => {
     setOpenDropdown(null);
   }
 
-  function logout() {
-    localStorage.setItem('isLoggedIn', 'false');
-    localStorage.removeItem('currentlyLoggedInUser');
-    navigate('/');
+
+  async function handleLogOut() {
+    const canLogOut = await logOut();
+    if (canLogOut === true) {
+      navigate('/')
+    } else {
+      console.log('Error logging out');
+    }
   }
+  
+
 
   return (
     <Navbar variant="dark" bg="dark" expand="lg">
@@ -111,10 +118,11 @@ const NavbarDarkExample: React.FC<Props> = ({ username }) => {
               onMouseEnter={() => showDropdown('user')}
               onMouseLeave={hideDropdown}
             >
-              <NavDropdown.Item onClick={logout}>Log Out</NavDropdown.Item>
+              <NavDropdown.Item onClick={handleLogOut}>Log Out</NavDropdown.Item>
             </NavDropdown>
             <Navbar.Brand>FIX DROPDOWN</Navbar.Brand>
           </Nav>
+          <button onClick={handleLogOut}></button>
         </Navbar.Collapse>
       </Container>
     </Navbar>

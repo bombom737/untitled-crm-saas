@@ -1,54 +1,56 @@
-//import axios from "axios";
-import { useRef } from "react";
-import { userExists } from '../services/auth'
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiPost } from "../services/axios-api";
 
 export function Login() {
+  
+  const [loginError, setLoginError] = useState(false)
+
   const navigate = useNavigate();
+  
   const formInput = useRef<HTMLInputElement>(null);
 
-  //make asynchronous when posting to a database
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); // prevent screen refresh and loss of data
 
+    setLoginError(false)
     const form = e.target as HTMLFormElement;
     const email = form.email.value;
     const password = form.password.value;
 
-    try {
-      const existingUsers = JSON.parse(localStorage.getItem("users") || "[]")
-      const user = userExists(existingUsers, email, password) // Replace with actual API call: await axios.post("/login", { email, password });
-      console.log(user);
-      
-      if (user) {
-        alert("User Identified!")
-        localStorage.setItem('currentlyLoggedInUser', JSON.stringify(user))
+    apiPost('/login', {
+      email: email,
+      password: password
+    })
+    .then((response) => {
+      if (response.status === 201){
+        alert("User Identified!");
         navigate("/dashboard");
-      } else {
-        alert("Login failed, please try again!");
+      }
+    })
+    .catch((error) => {
+      if (error.response && error.response.status === 403) {
+        setLoginError(true)
+        console.error('Error during registration:', error);
         if (formInput.current) {
           formInput.current.focus();
         }
+      } else{
+        console.log("Validation failed");
+
       }
-    } catch (error: any) {
-      console.error(error.message);
-    }
+    });
   }
+  
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={submit}>
       <div className="field">
             <input id="email" type="text" ref={formInput} placeholder="Email"/>
-            {/* {emailError && <p className="error">Please enter a valid email.</p>} */}
+            {loginError && <p className="error">Email or password are incorrect.</p>}
           </div>
       <div className="field">
             <input id="password" type="password" placeholder="Password"/>
-            {/* {passwordError && (
-              <p className="error">
-                Password must be at least 8 characters long, and must contain an
-                uppercase and a lowercase character.
-              </p>
-            )} */}
             <p>Forgot password?</p>
           </div>
       <div className="field btn">

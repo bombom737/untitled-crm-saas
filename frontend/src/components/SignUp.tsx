@@ -100,11 +100,10 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
       })
       .catch((error) => {
         if (error.response && error.response.status === 409) {
-          setEmailTaken(true)
+          setEmailTaken(true);
           console.error('Error during registration:', error);
         } else{
           console.log("Validation failed: " + errors);
-
         }
       });
     } else {

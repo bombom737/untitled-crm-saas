@@ -35,19 +35,26 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
 
-    const credentials = req.body
+    const credentials = req.body;
 
-    const user = await userModel.findOne({ email: credentials.email })
+    const user = await userModel.findOne({ email: credentials.email });
+    //Says await has no effect on the similar password check expression, but this line does not work without await ¯\_(ツ)_/¯
+    if (!user) {
+        console.log("Incorrect username or password");
+        return res.status(403).send("Incorrect username or password");
+    }
+    
+    const similar = await bcrypt.compare(credentials.password, user.password);
+    
+    if (!similar) {
+        console.log("Incorrect username or password");
+        return res.status(403).send("Incorrect username or password");
+    } 
 
-    if (!user) return res.sendStatus(403)
+    assignToken(user.toJSON(), res);
 
-    const similar = bcrypt.compare(credentials.password, user.password)
-
-    if (!similar) return res.sendStatus(403)
-
-    assignToken(user.toJSON(), res)
-
-    res.send("User logged in successfully!")
+    res.status(201).send("User identified!");
+    console.log(`Identified user ${credentials.email}`);
 
 })
 
@@ -61,6 +68,18 @@ router.get("/is-logged-in", (req, res) => {
         else res.send(true)
     })
 })
+
+router.get("/logout", (req, res) => {
+    console.log('route /auth/logout hit');
+    const token = req.cookies?.token;
+    if (!token) {
+        return res.status(200).send(false);
+    }
+    
+    res.clearCookie('token', { path: '/' });
+    res.status(200).send(true);
+});
+
 
 function assignToken(user, res) {
     delete user.password
