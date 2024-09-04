@@ -11,6 +11,4 @@ const saleSchema = new mongoose.Schema({
     saleId: Number
 })
 
-const SaleModel = mongoose.model('Sale', saleSchema);
-
-export default SaleModel;
+export default saleSchema;

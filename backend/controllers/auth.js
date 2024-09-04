@@ -2,6 +2,7 @@ import { Router } from "express";
 import userModel from "../models/userModel.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import { generateUniqueID, getRandomId } from "../services/helperFunctions.js";
 
 const router = Router()
 
@@ -9,20 +10,41 @@ router.post("/register", async (req, res) => {
     try {
         console.log("Received request at /register with body:", req.body);
 
-        const user = req.body;        
-        const existingUser = await userModel.findOne({ email: user.email });
+        let {firstName, lastName, companyName, email, password} = req.body; 
+        
+        if(!firstName || !lastName || !companyName || !email || !password){
+            return res.status(400).send("All fields are required");
+        }
+
+        const existingUser = await userModel.findOne({ email: email });
 
         if (existingUser) {
-            console.log("User already exists:", user.email);
+            console.log("User already exists:", email);
             return res.status(409).send("User already exists");
         }
 
-        const hashedPassword = await bcrypt.hash(user.password, 10);
-        user.password = hashedPassword;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        password = hashedPassword;
 
-        await userModel.create(user);
+        let userId = await generateUniqueID(10000000, 99999999)
+        console.log(userId);
+        
 
-        console.log("User registered successfully:", user.email);
+        const newUser = new userModel({
+            firstName,
+            lastName,
+            companyName,
+            email,
+            password: hashedPassword,
+            id: userId,
+            customersArray: [],
+            salesArray: []
+        });
+
+        await newUser.save()
+
+        console.log("User registered successfully:", email);
         res.status(201).send("User registered successfully!");
     } catch (error) {
         console.error("Error during registration:", error.message);

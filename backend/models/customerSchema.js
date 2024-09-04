@@ -11,6 +11,4 @@ const customerSchema = new mongoose.Schema({
     customerId: Number
 })
 
-const CustomerModel =  mongoose.model('Customer', customerSchema);
-
-export default CustomerModel;
+export default customerSchema;
