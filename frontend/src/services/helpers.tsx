@@ -7,6 +7,15 @@ export function findItemById(id:number, array:any) {
     return array.find((item: any) => item.id === id);
 }
 
+export function getCookie(name:string): string | null {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop()?.split(';').shift() || null;
+  }
+  return null;
+}
+
 export function generateUniqueID(array: any, min:number, max:number) {
     // If all possible IDs are taken
     if (array.length >= max) {

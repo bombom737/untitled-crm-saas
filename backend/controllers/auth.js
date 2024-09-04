@@ -9,8 +9,7 @@ router.post("/register", async (req, res) => {
     try {
         console.log("Received request at /register with body:", req.body);
 
-        const user = req.body;
-
+        const user = req.body;        
         const existingUser = await userModel.findOne({ email: user.email });
 
         if (existingUser) {
@@ -22,7 +21,6 @@ router.post("/register", async (req, res) => {
         user.password = hashedPassword;
 
         await userModel.create(user);
-        assignToken(user, res);
 
         console.log("User registered successfully:", user.email);
         res.status(201).send("User registered successfully!");
@@ -34,25 +32,30 @@ router.post("/register", async (req, res) => {
 
 
 router.post("/login", async (req, res) => {
-
+    
     const credentials = req.body;
-
+    
     const user = await userModel.findOne({ email: credentials.email });
-    //Says await has no effect on the similar password check expression, but this line does not work without await ¯\_(ツ)_/¯
     if (!user) {
         console.log("Incorrect username or password");
         return res.status(403).send("Incorrect username or password");
     }
     
+    //Says await has no effect on the similar password check expression, but this line does not work without await ¯\_(ツ)_/¯
     const similar = await bcrypt.compare(credentials.password, user.password);
+    console.log(similar);
     
     if (!similar) {
         console.log("Incorrect username or password");
         return res.status(403).send("Incorrect username or password");
     } 
 
+    res.cookie("userFirstName", user.firstName, {
+        secure: true,
+        sameSite: "lax"
+    });
     assignToken(user.toJSON(), res);
-
+    
     res.status(201).send("User identified!");
     console.log(`Identified user ${credentials.email}`);
 
@@ -70,13 +73,13 @@ router.get("/is-logged-in", (req, res) => {
 })
 
 router.get("/logout", (req, res) => {
-    console.log('route /auth/logout hit');
     const token = req.cookies?.token;
     if (!token) {
         return res.status(200).send(false);
     }
     
-    res.clearCookie('token', { path: '/' });
+    res.clearCookie('token');
+    res.clearCookie('userFirstName')
     res.status(200).send(true);
 });
 

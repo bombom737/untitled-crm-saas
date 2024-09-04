@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import NavbarDarkExample from "../components/Navbar";
 import { redirectUser } from '../services/auth';
 import './Base.css';
+import { getCookie } from '../services/helpers';
 
 interface BaseProps {
   viewComponent: ReactNode;
@@ -25,8 +26,11 @@ export default function Base({ viewComponent }: BaseProps) {
   
 
   function getUser() {
-    let user = JSON.parse(localStorage.getItem('currentlyLoggedInUser') || '{}');
-    return user.firstName || `UNSIGNED USER If you're seeing this text something is broken :)`;
+    let user = getCookie('userFirstName');
+    if(user !== null){
+      return user
+    }
+     return `UNSIGNED USER If you're seeing this text something is broken :)`;
   }
 
   if (isLoading) {
