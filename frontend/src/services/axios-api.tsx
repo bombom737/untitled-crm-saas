@@ -4,8 +4,11 @@ export function apiPost(route: string, body:any) {
     return axios.post("http://localhost:3000" + route, body, { withCredentials: true })
 }
 
-export function apiFetch(route: string) {
-    return axios.get("http://localhost:3000" + route, { withCredentials: true })
+export function apiFetch(route: string, params?: object) {
+    return axios.get("http://localhost:3000" + route, {
+         withCredentials: true, 
+         params: params
+        })
 }
 
 export async function isLoggedIn() {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Customer } from '../interfaces/interfaces';
-import { addToDatabase, removeFromDatabase, getDatabaseArray } from '../db-like/localDb';
+import { addToDatabase, removeFromDatabase, updateDatabase, getDatabaseArray } from '../services/db-requests';
 import CustomerCard from '../components/CustomerCard';
 import { generateUniqueID } from '../services/helpers'
 
@@ -30,13 +30,16 @@ export default function Customers() {
     'Connected',
   ]);
 
-  // State to store customer array
   const [customerArray, setCustomerArray] = useState<Customer[]>([]);
 
-  // Load customers from localStorage on component mount
+  // Load customers from database on component mount / change
   useEffect(() => {
-    setCustomerArray(getDatabaseArray('customerArray'));
-  }, []);
+      async function fetchData() {
+          const data = await getDatabaseArray('customerArray');  // Await the async function
+          setCustomerArray(data);  // Set state with fetched data
+      }
+      fetchData();
+  }, [customerArray]);
 
   const validateInput = (value: string, validationFn: (value: string) => boolean) => {
     return validationFn(value);
@@ -73,7 +76,7 @@ export default function Customers() {
     });
   }
 
-  function createCustomer(e: any) {
+  async function createCustomer(e: any) {
     e.preventDefault();
     if (handleValidation()) {
       let date = new Date();
@@ -94,17 +97,19 @@ export default function Customers() {
           customerId: id,
         };  
         alert('Successfully created customer! ' + JSON.stringify(newCustomer));
-        addToDatabase(newCustomer, 'customerArray');
-        setCustomerArray(getDatabaseArray('customerArray'));
+        addToDatabase('customerArray', newCustomer);
+        const updatedCustomerArray = await getDatabaseArray('customerArray');
+        setCustomerArray(updatedCustomerArray);
       }
     } else {
       alert('Error creating customer,' + JSON.stringify(errors));
     }
   }
   
-  function handleremoveFromDatabase(customer: Customer) {
-    removeFromDatabase(customer, 'customerArray');
-    setCustomerArray(getDatabaseArray('customerArray'));
+  async function handleRemoveFromDatabase(customer: Customer) {
+    removeFromDatabase('customerArray', customer);
+    const updatedCustomerArray = await getDatabaseArray('customerArray');
+    setCustomerArray(updatedCustomerArray); 
   }
 
   return (
@@ -160,7 +165,7 @@ export default function Customers() {
           {customerArray.map((customer, index) => (
             <div key={index}>
               <CustomerCard customer={customer} />
-              <button onClick={() => handleremoveFromDatabase(customer)}>Remove</button>
+              <button onClick={() => handleRemoveFromDatabase(customer)}>Remove</button>
             </div>
           ))}
         </div>

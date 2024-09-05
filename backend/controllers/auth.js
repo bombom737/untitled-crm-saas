@@ -2,7 +2,7 @@ import { Router } from "express";
 import userModel from "../models/userModel.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-import { generateUniqueID, getRandomId } from "../services/helperFunctions.js";
+import { generateUniqueID } from "../services/helperFunctions.js";
 
 const router = Router()
 

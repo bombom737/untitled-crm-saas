@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import app from "./app.js";
 import authRouter from "./controllers/auth.js";
+import userRouter from "./controllers/user.js"
 import cors from "cors";
 import mongoose from "./connection.js"
 import "dotenv/config";
@@ -16,6 +17,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 app.use("/auth", authRouter);
+app.use('/user', userRouter)
 app.use("/", authRouter);
 
 app.listen(process.env.PORT, () => {
