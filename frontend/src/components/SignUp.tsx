@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import './SignUp.css';
 import { apiPost } from "../services/axios-api.tsx"
+import { validateEmail } from "../services/helpers.tsx"
 
 interface User {
   firstName: string;
@@ -40,7 +41,6 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
     firstName: (value: string) => value !== "",
     lastName: (value: string) => value !== "",
     company: (value: string) => value !== "",
-    email: (value: string) => value.includes("@") && value.includes(".com"),
     password: (value: string) =>
       value.length >= 8 && /[A-Z]/.test(value) && /[a-z]/.test(value),
     passConfirm: (value: string) =>
@@ -53,7 +53,7 @@ export function SignUp({ onSignUpSuccess }: { onSignUpSuccess: () => void }) {
       firstName: !validateInput(firstNameRef.current?.value || "", conditions.firstName),
       lastName: !validateInput(lastNameRef.current?.value || "", conditions.lastName),
       company: !validateInput(companyRef.current?.value || "", conditions.company),
-      email: !validateInput(emailRef.current?.value || "", conditions.email),
+      email: validateEmail(emailRef.current?.value || "") === null, 
       password: errors.password,
       passConfirm: errors.passConfirm 
     };
