@@ -24,13 +24,14 @@ export function addToDatabase(arrayType:string, item:any) {
 
 export function removeFromDatabase(arrayType:string, item:any) {
     
+    console.log(`${arrayType} ${JSON.stringify(item)}`)
     apiPost('/user/remove-item', {
         arrayType: arrayType,
         item: item
     })
     .then((response) => {
         if (response.status === 200){
-            console.log(`Item removed successfully! ${item}`);
+            console.log(`Item removed successfully! ${JSON.stringify(item)}`);
         }
     })
     .catch((error) => {
