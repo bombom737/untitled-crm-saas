@@ -65,7 +65,6 @@ router.post("/login", async (req, res) => {
     
     //Says await has no effect on the similar password check expression, but this line does not work without await ¯\_(ツ)_/¯
     const similar = await bcrypt.compare(credentials.password, user.password);
-    console.log(similar);
     
     if (!similar) {
         console.log("Incorrect username or password");

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Customer } from '../interfaces/interfaces';
 import { addToDatabase, removeFromDatabase, updateDatabase, getDatabaseArray } from '../services/db-requests';
-import CustomerCard from '../components/CustomerCard';
 import { generateUniqueID } from '../services/helpers'
+import Table from '../components/Table';
 
 export default function Customers() {
   const nameRef = useRef<HTMLInputElement>(null);
@@ -91,7 +91,7 @@ export default function Customers() {
           email: emailRef.current?.value || "",
           phoneNumber: phoneNumberRef.current?.value || "",
           leadStatus: currentLeadStatus,
-          dateCreated: `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getFullYear()}`,
+          dateCreated: `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getFullYear()}`, // Get date in DD-MM-YYYY format
           jobTitle: jobTitleRef.current?.value || "",
           industry: industryRef.current?.value || "",
           customerId: id,
@@ -162,12 +162,7 @@ export default function Customers() {
   </form>
   {customerArray.length > 0 ? (
         <div>
-          {customerArray.map((customer, index) => (
-            <div key={index}>
-              <CustomerCard customer={customer} />
-              <button onClick={() => handleRemoveFromDatabase(customer)}>Remove</button>
-            </div>
-          ))}
+          <Table data={customerArray} removeFn={handleRemoveFromDatabase}/>
         </div>
       ) : (
         <div>No customers saved. Start by creating a customer!</div>

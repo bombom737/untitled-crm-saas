@@ -5,7 +5,7 @@ my goals for this project are to:
 
 # use react hooks (generaly means build this with react, this is a great project to get better with react development)
 
-# the use of APIs in my project (expanding API usage, need to look for an email API, a data analysis API, and a payment API, and whatever else will be cool)
+# the use of APIs in my project (get famiilar API usage, need to look for an email API, a data analysis API, and a payment API, and whatever else will  fit the project)
 
 # I'll be using React for my frontend development, and Node, Express, and MongoDB for my backend.
 
