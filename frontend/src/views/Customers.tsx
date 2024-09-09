@@ -106,7 +106,7 @@ export default function Customers() {
             email: emailRef.current?.value || "",
             phoneNumber: phoneNumberRef.current?.value || "",
             leadStatus: currentLeadStatus,
-            dateCreated: `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`,
+            dateCreated: `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getMonth() + 1 < 10 ? '0' + date.getMonth() : date.getMonth()}-${date.getFullYear()}`, // Add leading zero if necessary
             jobTitle: jobTitleRef.current?.value || "",
             industry: industryRef.current?.value || "",
             customerId: id,

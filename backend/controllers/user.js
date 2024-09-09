@@ -76,8 +76,8 @@ router.post('/remove-item', authenticateToken, async (req, res) => {
 
         await user.save();
 
-        console.log('Item removed successfully!');
-        res.status(200).send('Item removed successfully');
+        console.log(`Item removed successfully Item: ${JSON.stringify(item)}`);
+        res.status(200).send(`Item removed successfully`);
     } catch (error) {
         console.error('Error removing item:', error);
         res.status(500).send('Server error');
