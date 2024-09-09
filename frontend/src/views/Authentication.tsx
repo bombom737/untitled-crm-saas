@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Login } from "../components/Login";
 import { SignUp } from "../components/SignUp";
 import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../services/axios-api";
 import './Authentication.css';
 
 export function Authentication() {
@@ -10,14 +11,18 @@ export function Authentication() {
   const [isLoading, setIsLoading] = useState(true); // Add a loading state to avoid rendering whole site if user is to be redirected
 
   useEffect(() => {
-    // Check if there is a user currently logged-in in localStorage
-    if (localStorage.getItem('currentlyLoggedInUser')) {
-      // If a user is found, redirect to the dashboard
-      navigate('/dashboard');
-    } else {
-      // If no user is found, allow the login/signup forms to render
-      setIsLoading(false);
+    async function redirect(){
+      // Check if user is logged in
+      const loggedInStatus = await isLoggedIn()
+      if (loggedInStatus) {
+        // If logged in, redirect to the dashboard
+        navigate('/dashboard');
+      } else {
+        // If not logged in, allow the login/signup forms to render
+        setIsLoading(false);
+      }
     }
+    redirect()
   }, [navigate]);
 
   const handleLoginClick = () => setIsLogin(true);

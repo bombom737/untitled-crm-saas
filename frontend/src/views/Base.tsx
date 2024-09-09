@@ -25,10 +25,10 @@ export default function Base({ viewComponent }: BaseProps) {
   }, [navigate]);
   
 
-  function getUser() {
-    let user = getCookie('userFirstName');
-    if(user !== null){
-      return user
+  function getFirstName() {
+    let firstName = getCookie('userFirstName');
+    if(firstName !== null){
+      return firstName
     }
      return `UNSIGNED USER If you're seeing this text something is broken :)`;
   }
@@ -40,7 +40,7 @@ export default function Base({ viewComponent }: BaseProps) {
   return (
     <>
       <div className="navbar-container">
-        <NavbarDarkExample username={getUser()} />
+        <NavbarDarkExample username={getFirstName()} />
       </div>
       <div className="container">
         <div className='white-background'>
