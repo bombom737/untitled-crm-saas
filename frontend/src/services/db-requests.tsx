@@ -27,7 +27,7 @@ export function removeFromDatabase(modelType:string, itemId:any) {
     console.log(`${modelType} ${JSON.stringify(itemId)}`)
     apiPost('/user/remove-item', {
         modelType: modelType,
-        itemId: itemId
+        item: itemId
     })
     .then((response) => {
         if (response.status === 200){
@@ -67,17 +67,24 @@ export function updateDatabase(modelType:string, item:any) {
     });
 }
 
-export async function getDatabaseModel(modelType: string): Promise<Array<any>> {
+export async function getDatabaseModel(modelType: string): Promise<any> {
     return apiFetch('/user/get-model', { modelType: modelType })
         .then(response => {
-            const modelFromDatabase = response.data;
-            return modelFromDatabase;
+            if (response && response.data) {
+                const modelFromDatabase = response.data;
+                console.log('Model from Database:', modelFromDatabase);
+                return modelFromDatabase;
+            } else {
+                console.error('Response did not contain data.');
+                return null;
+            }
         })
         .catch(error => {
-            console.error(error);
-            return [];
+            console.error('Error in getDatabaseModel:', error);
+            return null;
         });
 }
+
 
 export async function getUser(userId: number): Promise<any> {
     return apiFetch('/user/get-user', { id: userId })

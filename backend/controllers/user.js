@@ -98,24 +98,19 @@ router.post('/add-item', authenticateToken, async (req, res) => {
 
 router.post('/remove-item', authenticateToken, async (req, res) => {
     const { modelType, item } = req.body; 
-
+    console.log(modelType + " " + JSON.stringify(item));
     if (!modelType || !item) {
         return res.status(400).send('Missing model type or item data');
     }
+    
     try {
-        const user = await UserModel.findOne({ id: req.user.id });
-
-        if (!user) return res.status(404).send('User not found');
-
         if (modelType === 'customerModel') {
-            await customerModel.deleteOne({ customerId: item.id})
+            await customerModel.deleteOne({ customerId: item.customerId})
         } else if (modelType === 'saleModel') {
-            await saleModel.deleteOne({ saleId: item.id})
+            await saleModel.deleteOne({ saleId: item.saleId})
         } else {
             return res.status(400).send('Invalid model type');
         }
-
-        await user.save();
 
         console.log('Item removed successfully!');
         res.status(200).send('Item removed successfully');
@@ -167,9 +162,11 @@ router.get('/get-model', authenticateToken, async (req, res) => {
         if (!user) return res.status(404).send('User not found');
         
         if (modelType === 'customerModel') {
-            return customerModel.find({ owningUser: user.id}) 
+            const costumers = await customerModel.find({ owningUser: user.id})
+            return res.status(200).json(costumers);
         } else if (modelType === 'saleModel') {
-            return saleModel.find({ owningUser: user.id}) 
+            const sales = await saleModel.find({ owningUser: user.id})
+            return res.status(200).json(sales);
         } else {
             return res.status(400).send('Invalid model type');
         }

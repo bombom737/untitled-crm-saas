@@ -3,7 +3,7 @@ import { Column } from 'primereact/column';
 
 export default function Table({ data, removeFn }: { data: Array<any>, removeFn: (item: any | undefined) => void }) {
   const firstItemKeys = data.length > 0 ? Object.keys(data[0]) : [];
-  const filteredKeys = firstItemKeys.filter(key => key !== 'customerId' && key !== '_id');
+  const filteredKeys = firstItemKeys.filter(key => key !== 'customerId' && key !== '_id' && key !== 'owningUser' && key !== '__v');
   
   function formatHeader(string: string) {
       return string

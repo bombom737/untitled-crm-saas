@@ -4,7 +4,7 @@ export function apiPost(route: string, body:any) {
     return axios.post("http://localhost:3000" + route, body, { withCredentials: true })
 }
 
-export function apiFetch(route: string, params?: object) {
+export function apiFetch(route: string, params?: any) {
     return axios.get("http://localhost:3000" + route, {
          withCredentials: true, 
          params: params
