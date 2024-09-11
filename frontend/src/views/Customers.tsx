@@ -92,13 +92,13 @@ export default function Customers() {
     // Add customer locally and then update the database
     const addCustomer = async (newCustomer: Customer) => {
       setCustomerArray(prevArray => [...prevArray, newCustomer]);  
-      await addToDatabase('customerModel', newCustomer);  
+      addToDatabase('customerModel', newCustomer);  
     };
   
     // Remove customer locally and then update the database
     const removeCustomer = async (customerId: number) => {
       setCustomerArray(prevArray => prevArray.filter(customer => customer.customerId !== customerId));  
-      await removeFromDatabase('customerModel', { customerId }); 
+      removeFromDatabase('customerModel', { customerId }); 
     };
   
     // Handle form submission to create a new customer

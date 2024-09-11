@@ -98,7 +98,6 @@ router.post('/add-item', authenticateToken, async (req, res) => {
 
 router.post('/remove-item', authenticateToken, async (req, res) => {
     const { modelType, item } = req.body; 
-    console.log(modelType + " " + JSON.stringify(item));
     if (!modelType || !item) {
         return res.status(400).send('Missing model type or item data');
     }
