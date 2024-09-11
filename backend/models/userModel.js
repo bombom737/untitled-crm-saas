@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import customerSchema from './customerSchema.js';
-import saleSchema from './saleSchema.js';
+import customerSchema from './customerModel.js';
+import saleSchema from './saleModel.js';
 
 const userSchema = new mongoose.Schema({
     firstName: String,
@@ -9,8 +9,6 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String,
     id: Number,
-    customersArray: [customerSchema],
-    salesArray: [saleSchema]
 });
 
 const UserModel = mongoose.model('User', userSchema);

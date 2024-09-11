@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const saleSchema = new mongoose.Schema({
+    owningUser: Number,
     buyerName: String,
     dealStage: String,
     amount: String,
@@ -9,6 +10,8 @@ const saleSchema = new mongoose.Schema({
     priority: String,
     associatedWith: String,
     saleId: Number
-})
+});
 
-export default saleSchema;
+const saleModel = new mongoose.model('sales', saleSchema)
+
+export default saleModel;

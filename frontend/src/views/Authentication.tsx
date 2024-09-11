@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Login } from "../components/Login";
 import { SignUp } from "../components/SignUp";
 import { useNavigate } from "react-router-dom";
+import { getCookie } from "../services/helpers";
 import './Authentication.css';
 
 export function Authentication() {
@@ -10,8 +11,8 @@ export function Authentication() {
   const [isLoading, setIsLoading] = useState(true); // Add a loading state to avoid rendering whole site if user is to be redirected
 
   useEffect(() => {
-    // Check if there is a user currently logged-in in localStorage
-    if (localStorage.getItem('currentlyLoggedInUser')) {
+    // Check if there is a user currently logged-in in cookeis
+    if (getCookie('userFirstName')) {
       // If a user is found, redirect to the dashboard
       navigate('/dashboard');
     } else {

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const customerSchema = new mongoose.Schema({
+    owningUser: Number,
     name: String,
     email: String,
     phoneNumber: String,
@@ -9,6 +10,8 @@ const customerSchema = new mongoose.Schema({
     jobTitle: String,
     industry: String,
     customerId: Number
-})
+});
 
-export default customerSchema;
+const customerModel = new mongoose.model('customers', customerSchema)
+
+export default customerModel;

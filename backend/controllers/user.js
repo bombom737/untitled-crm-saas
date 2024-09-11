@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import UserModel from '../models/userModel.js';
+import customerModel from '../models/customerModel.js';
+import saleModel from '../models/saleModel.js';
 
 const router = Router();
 
@@ -18,12 +20,33 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Route to add an item to the specified array 
-router.post('/add-item', authenticateToken, async (req, res) => {
-    const { arrayType, item } = req.body; // Get the array type and item to be added from request body
 
-    if (!arrayType || !item) {
-        return res.status(400).send('Missing array type or item data');
+router.get('/get-user', authenticateToken, async (req, res) => {
+    const { userId } = req.query; // Get user from query params
+
+    if (!userId) {
+        return res.status(400).send('Invalid model type');
+    }
+    
+    try {
+        const user = await UserModel.findOne({ id: userId });
+
+        if (!user) return res.status(404).send('User not found');
+        
+        return user
+    } catch (error) {
+        console.error('Error getting user:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+// Route to add an item to the specified model 
+router.post('/add-item', authenticateToken, async (req, res) => {
+    const { modelType, item } = req.body; // Get the model type and item to be added from request body
+
+    if (!modelType || !item) {
+        return res.status(400).send('Missing model type or item data');
     }
 
     try {
@@ -32,17 +55,38 @@ router.post('/add-item', authenticateToken, async (req, res) => {
 
         if (!user) return res.status(404).send('User not found');
         
-        // Depending on the array type, add the item to the correct array        
-        if (arrayType === 'customerArray') {
-            user.customersArray.push(item);
-        } else if (arrayType === 'salesArray') {
-            user.salesArray.push(item); 
+        // Depending on the model type, add the item to the correct model        
+        if (modelType === 'customerModel') {
+            const newCustomer = new customerModel({
+                owningUser: user.id,
+                name: item.name,
+                email: item.email,
+                phoneNumber: item.phoneNumber,
+                leadStatus: item.leadStatus,
+                dateCreated: item.dateCreated,
+                jobTitle: item.jobTitle,
+                industry: item.industry,
+                customerId: item.customerId
+            });
+            // Save the updated model
+            await newCustomer.save();
+        } else if (modelType === 'saleModel') {
+            const newSale = new saleModel({
+                owningUser: user.id,
+                buyerName: item.buyerName,
+                dealStage: item.dealStage,
+                amount: item.amount,
+                closeDate: item.closeDate,
+                saleType: item.saleType,
+                priority: item.priority,
+                associatedWith: item.associatedWith,
+                saleId: item.saleId
+            });
+            // Save the updated model
+            await newSale.save()
         } else {
-            return res.status(400).send('Invalid array type');
+            return res.status(400).send('Invalid model type');
         }
-
-        // Save the updated user document
-        await user.save();
 
         console.log('Item added successfully! ' + JSON.stringify(item))
         res.status(200).send('Item added successfully');
@@ -53,30 +97,25 @@ router.post('/add-item', authenticateToken, async (req, res) => {
 });
 
 router.post('/remove-item', authenticateToken, async (req, res) => {
-    const { arrayType, item } = req.body; 
+    const { modelType, item } = req.body; 
 
-    if (!arrayType || !item) {
-        return res.status(400).send('Missing array type or item data');
+    if (!modelType || !item) {
+        return res.status(400).send('Missing model type or item data');
     }
     try {
         const user = await UserModel.findOne({ id: req.user.id });
 
         if (!user) return res.status(404).send('User not found');
 
-        let itemToRemove = null;
-        if (arrayType === 'customerArray') {
-            itemToRemove = user.customersArray.indexOf(item)
-            user.customersArray.splice(itemToRemove, 1);
-        } else if (arrayType === 'salesArray') {
-            itemToRemove = user.salesArray.indexOf(item)
-            user.salesArray.splice(itemToRemove, 1);
+        if (modelType === 'customerModel') {
+            await customerModel.deleteOne({ customerId: item.id})
+        } else if (modelType === 'saleModel') {
+            await saleModel.deleteOne({ saleId: item.id})
         } else {
-            return res.status(400).send('Invalid array type');
+            return res.status(400).send('Invalid model type');
         }
 
-        await user.save();
-
-        console.log('Item removed successfully!');
+        console.log('Item removed successfully! Item: ' + JSON.stringify(item));
         res.status(200).send('Item removed successfully');
     } catch (error) {
         console.error('Error removing item:', error);
@@ -85,25 +124,22 @@ router.post('/remove-item', authenticateToken, async (req, res) => {
 });
 
 router.post('/update-item', authenticateToken, async (req, res) => {
-    const { arrayType, item } = req.body;  
+    const { modelType, item } = req.body;  
 
-    if (!arrayType || !item) {
-        return res.status(400).send('Missing array type or item data');
+    if (!modelType || !item) {
+        return res.status(400).send('Missing model type or item data');
     }
     try {
         const user = await UserModel.findOne({ id: req.user.id });
 
         if (!user) return res.status(404).send('User not found');
 
-        let itemToupdate = null;
-        if (arrayType === 'customerArray') {
-            itemToupdate = user.customersArray.findIndex((id) => {id === item.id})
-            user.customersArray.splice(itemToupdate, 1, item);
-        } else if (arrayType === 'salesArray') {
-            itemToupdate = user.salesArray.findIndex((id) => {id === item.id})
-            user.salesArray.splice(itemToupdate, 1, item);
+        if (modelType === 'customerModel') {
+            await customerModel.findOneAndUpdate({ owningUser: user.id}, item)
+        } else if (modelType === 'saleModel') {
+            await saleModel.findOneAndUpdate({ owningUser: user.id}, item)
         } else {
-            return res.status(400).send('Invalid array type');
+            return res.status(400).send('Invalid model type');
         }
 
         await user.save();
@@ -116,11 +152,11 @@ router.post('/update-item', authenticateToken, async (req, res) => {
     }
 });
 
-router.get('/get-array', authenticateToken, async (req, res) => {
-    const { arrayType } = req.query; // Get arrayType from query params
+router.get('/get-model', authenticateToken, async (req, res) => {
+    const { modelType } = req.query; // Get modelType from query params
 
-    if (!arrayType) {
-        return res.status(400).send('Invalid array type');
+    if (!modelType) {
+        return res.status(400).send('Invalid model type');
     }
     
     try {
@@ -128,15 +164,15 @@ router.get('/get-array', authenticateToken, async (req, res) => {
 
         if (!user) return res.status(404).send('User not found');
         
-        if (arrayType === 'customerArray') {
-            return res.json(user.customersArray); 
-        } else if (arrayType === 'salesArray') {
-            return res.json(user.salesArray);
+        if (modelType === 'customerModel') {
+            return customerModel.find({ owningUser: user.id}) 
+        } else if (modelType === 'saleModel') {
+            return saleModel.find({ owningUser: user.id}) 
         } else {
-            return res.status(400).send('Invalid array type');
+            return res.status(400).send('Invalid model type');
         }
     } catch (error) {
-        console.error('Error getting array:', error);
+        console.error('Error getting model:', error);
         res.status(500).send('Server error');
     }
 });

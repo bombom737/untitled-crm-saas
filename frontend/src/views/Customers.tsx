@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Customer } from '../interfaces/interfaces';
-import { addToDatabase, removeFromDatabase, updateDatabase, getDatabaseArray } from '../services/db-requests';
+import { addToDatabase, removeFromDatabase, updateDatabase, getUser,  getDatabaseModel } from '../services/db-requests';
 import { generateUniqueID } from '../services/helpers'
 import Table from '../components/Table';
 import { validateEmail } from "../services/helpers.tsx"
@@ -36,7 +36,7 @@ export default function Customers() {
   // Load customers from database on component mount 
   useEffect(() => {
       async function fetchData() {
-          const data = await getDatabaseArray('customerArray');  
+          const data = await getDatabaseModel('customerModel');  
           setCustomerArray(data); 
       }
       fetchData();
@@ -80,13 +80,13 @@ export default function Customers() {
     // Add customer locally and then update the database
     const addCustomer = async (newCustomer: Customer) => {
       setCustomerArray(prevArray => [...prevArray, newCustomer]);  
-      await addToDatabase('customerArray', newCustomer);  
+      await addToDatabase('customerModel', newCustomer);  
     };
   
     // Remove customer locally and then update the database
     const removeCustomer = async (customerId: number) => {
       setCustomerArray(prevArray => prevArray.filter(customer => customer.customerId !== customerId));  
-      await removeFromDatabase('customerArray', { customerId }); 
+      await removeFromDatabase('customer', { customerId }); 
     };
   
     // Handle form submission to create a new customer

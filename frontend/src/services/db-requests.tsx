@@ -1,9 +1,9 @@
 import { apiFetch, apiPost } from './axios-api.tsx'
 
-export function addToDatabase(arrayType:string, item:any) {
+export function addToDatabase(modelType:string, item:any) {
     
     apiPost('/user/add-item', {
-        arrayType: arrayType,
+        modelType: modelType,
         item: item
     })
     .then((response) => {
@@ -22,16 +22,16 @@ export function addToDatabase(arrayType:string, item:any) {
     });
 }
 
-export function removeFromDatabase(arrayType:string, item:any) {
+export function removeFromDatabase(modelType:string, itemId:any) {
     
-    console.log(`${arrayType} ${JSON.stringify(item)}`)
+    console.log(`${modelType} ${JSON.stringify(itemId)}`)
     apiPost('/user/remove-item', {
-        arrayType: arrayType,
-        item: item
+        modelType: modelType,
+        itemId: itemId
     })
     .then((response) => {
         if (response.status === 200){
-            console.log(`Item removed successfully! ${JSON.stringify(item)}`);
+            console.log(`Item removed successfully! ${JSON.stringify(itemId)}`);
         }
     })
     .catch((error) => {
@@ -45,10 +45,10 @@ export function removeFromDatabase(arrayType:string, item:any) {
     });
 }
 
-export function updateDatabase(arrayType:string, item:any) {
+export function updateDatabase(modelType:string, item:any) {
     
     apiPost('/user/update-item', {
-        arrayType: arrayType,
+        modelType: modelType,
         item: item
     })
     .then((response) => {
@@ -67,14 +67,26 @@ export function updateDatabase(arrayType:string, item:any) {
     });
 }
 
-export function getDatabaseArray(arrayType: string): Promise<Array<any>> {
-    return apiFetch('/user/get-array', { arrayType: arrayType })
+export async function getDatabaseModel(modelType: string): Promise<Array<any>> {
+    return apiFetch('/user/get-model', { modelType: modelType })
         .then(response => {
-            const arrayFromDatabase = response.data;
-            return arrayFromDatabase;
+            const modelFromDatabase = response.data;
+            return modelFromDatabase;
         })
         .catch(error => {
             console.error(error);
             return [];
+        });
+}
+
+export async function getUser(userId: number): Promise<any> {
+    return apiFetch('/user/get-user', { id: userId })
+        .then(response => {
+            const user = response.data;
+            return user;
+        })
+        .catch(error => {
+            console.error(error);
+            return null;
         });
 }
