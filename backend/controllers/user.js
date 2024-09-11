@@ -115,7 +115,9 @@ router.post('/remove-item', authenticateToken, async (req, res) => {
             return res.status(400).send('Invalid model type');
         }
 
-        console.log('Item removed successfully! Item: ' + JSON.stringify(item));
+        await user.save();
+
+        console.log('Item removed successfully!');
         res.status(200).send('Item removed successfully');
     } catch (error) {
         console.error('Error removing item:', error);

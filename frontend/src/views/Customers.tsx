@@ -30,8 +30,17 @@ export default function Customers() {
     'Attempted To Contact',
     'Connected',
   ]);
-
+  
   const [customerArray, setCustomerArray] = useState<Customer[]>([]);
+  
+  // Conditions for valid customers
+  const conditions = {
+    name: (value: string) => value !== "",
+    phoneNumber: (value: string) => value.length > 7,
+    leadStatus: (value: string) => value !== "",
+    jobTitle: (value: string) => value !== "",
+    industry: (value: string) => value !== "",
+  };
 
   // Load customers from database on component mount 
   useEffect(() => {
@@ -42,20 +51,13 @@ export default function Customers() {
       fetchData();
   }, []);
   
-  const validateInput = (value: string, validationFn: (value: string) => boolean) => {
+  function validateInput(value: string, validationFn: (value: string) => boolean) {
     return validationFn(value);
   };
 
-  const conditions = {
-    name: (value: string) => value !== "",
-    phoneNumber: (value: string) => value.length > 7,
-    leadStatus: (value: string) => value !== "",
-    jobTitle: (value: string) => value !== "",
-    industry: (value: string) => value !== "",
-  };
 
   // Perform all validations and return a boolean if all fields are valid
-  const handleValidation = () => {
+  function handleValidation() {
     const newErrors = {
       name: !validateInput(nameRef.current?.value || "", conditions.name),
       email: validateEmail(emailRef.current?.value || "") === null,
@@ -104,7 +106,7 @@ export default function Customers() {
             email: emailRef.current?.value || "",
             phoneNumber: phoneNumberRef.current?.value || "",
             leadStatus: currentLeadStatus,
-            dateCreated: `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`,
+            dateCreated: `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getMonth() + 1 < 10 ? '0' + date.getMonth() : date.getMonth()}-${date.getFullYear()}`, // Add leading zero if necessary
             jobTitle: jobTitleRef.current?.value || "",
             industry: industryRef.current?.value || "",
             customerId: id,
