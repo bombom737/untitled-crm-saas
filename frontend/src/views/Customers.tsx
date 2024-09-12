@@ -1,16 +1,27 @@
 import { useState, useEffect, useRef } from 'react';
 import { Customer } from '../interfaces/interfaces';
-import { addToDatabase, removeFromDatabase, getDatabaseModel } from '../services/db-requests';
+import { addToDatabase, updateDatabase, removeFromDatabase, getDatabaseModel } from '../services/db-requests';
 import { generateUniqueID } from '../services/helpers'
 import Table from '../components/Table';
 import { validateEmail } from "../services/helpers.tsx"
+import EditPane from '../components/EditPane.tsx';
 
 export default function Customers() {
-  const nameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const phoneNumberRef = useRef<HTMLInputElement>(null);
-  const jobTitleRef = useRef<HTMLInputElement>(null);
-  const industryRef = useRef<HTMLInputElement>(null);
+  
+  const [customerArray, setCustomerArray] = useState<Customer[]>([]);
+  const [currentLeadStatus, setCurrentLeadStatus] = useState<string>("");
+  const [slidingPane, setSlidingPane] = useState<{visible: boolean, data?: any}>({visible: false});
+  
+  const [customerToEdit, setCustomerToEdit] = useState<Customer>({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    leadStatus: "",
+    dateCreated: "",
+    jobTitle: "",
+    industry: "",
+    customerId: 0,
+  });
 
   const [errors, setErrors] = useState({
     name: false,
@@ -20,7 +31,7 @@ export default function Customers() {
     jobTitle: false,
     industry: false
   })
-  const [currentLeadStatus, setCurrentLeadStatus] = useState<string>("");
+  
   const [leadStatusList] = useState<Array<string>>([
     'New',
     'Open',
@@ -31,7 +42,12 @@ export default function Customers() {
     'Connected',
   ]);
   
-  const [customerArray, setCustomerArray] = useState<Customer[]>([]);
+
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const phoneNumberRef = useRef<HTMLInputElement>(null);
+  const jobTitleRef = useRef<HTMLInputElement>(null);
+  const industryRef = useRef<HTMLInputElement>(null);
   
   // Conditions for valid customers
   const conditions = {
@@ -41,16 +57,16 @@ export default function Customers() {
     jobTitle: (value: string) => value !== "",
     industry: (value: string) => value !== "",
   };
-
+  
   // Load customers from database on component mount 
   useEffect(() => {
     async function fetchData() {
-        try {
-            const data = await getDatabaseModel('customerModel');
-            console.log('Data fetched:', data); // Check if data is being logged
-            if (data) {
-                setCustomerArray(data); // Update state only if data is valid
-            } else {
+      try {
+        const data = await getDatabaseModel('customerModel');
+        console.log('Data fetched:', data); // Check if data is being logged
+        if (data) {
+          setCustomerArray(data); // Update state only if data is valid
+        } else {
                 console.error('No data returned');
             }
         } catch (error) {
@@ -60,11 +76,9 @@ export default function Customers() {
     fetchData();
 }, []);
 
-  
   function validateInput(value: string, validationFn: (value: string) => boolean) {
     return validationFn(value);
   };
-
 
   // Perform all validations and return a boolean if all fields are valid
   function handleValidation() {
@@ -90,19 +104,38 @@ export default function Customers() {
   }
 
     // Add customer locally and then update the database
-    const addCustomer = async (newCustomer: Customer) => {
+    async function addCustomer (newCustomer: Customer) { 
       setCustomerArray(prevArray => [...prevArray, newCustomer]);  
       addToDatabase('customerModel', newCustomer);  
     };
+
+    function editCustomer(customer: Customer) {
+      setSlidingPane({visible: true});
+      const editCustomer: Customer ={
+        name: customer.name,
+        email: customer.email,
+        phoneNumber: customer.phoneNumber,
+        leadStatus: customer.leadStatus,
+        dateCreated: customer.dateCreated,
+        jobTitle: customer.jobTitle,
+        industry: customer.industry,
+        customerId: customer.customerId
+      };
+      setCustomerToEdit(editCustomer)
+      
+      //// get customer from id
+      //// get edited customer info
+      //// update customer in array then pesist to database using updateDatabase
+    }
   
     // Remove customer locally and then update the database
-    const removeCustomer = async (customerId: number) => {
+    async function removeCustomer (customerId: number) {
       setCustomerArray(prevArray => prevArray.filter(customer => customer.customerId !== customerId));  
       removeFromDatabase('customerModel', { customerId }); 
     };
   
     // Handle form submission to create a new customer
-    const createCustomer = async (e: any) => {
+    async function createCustomer  (e: any) {
       e.preventDefault();
       if (handleValidation()) {
         const date = new Date();
@@ -127,6 +160,10 @@ export default function Customers() {
       else{
         console.log('Error creating customer: ' + JSON.stringify(errors));
       }
+    }
+
+    function closePane(){
+      setSlidingPane( {visible: false })
     }
   
   return (
@@ -179,11 +216,16 @@ export default function Customers() {
     </form>
     {customerArray.length > 0 ? (
           <div>
-            <Table data={customerArray} removeFn={(rowData) => removeCustomer(rowData.customerId)} />
+            <Table data={customerArray} editFn={(rowData) => editCustomer(rowData)} removeFn={(rowData) => removeCustomer(rowData.customerId)} />
           </div>
         ) : (
           <div>No customers saved. Start by creating a customer!</div>
         )}
+        <EditPane
+        visible={slidingPane.visible}
+        data={customerToEdit}
+        closePane={closePane}
+        ></EditPane>
   </div>
   );
 }

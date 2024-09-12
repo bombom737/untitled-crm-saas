@@ -1,7 +1,7 @@
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 
-export default function Table({ data, removeFn }: { data: Array<any>, removeFn: (item: any | undefined) => void }) {
+export default function Table({ data, editFn, removeFn }: { data: Array<any>, editFn: (item: any | undefined) => void , removeFn: (item: any | undefined) => void }) {
   const firstItemKeys = data.length > 0 ? Object.keys(data[0]) : [];
   const filteredKeys = firstItemKeys.filter(key => key !== 'customerId' && key !== '_id' && key !== 'owningUser' && key !== '__v');
   
@@ -12,10 +12,16 @@ export default function Table({ data, removeFn }: { data: Array<any>, removeFn: 
   };
   
   const renderRemoveButton = (rowData: any) => (
-    <button onClick={() => removeFn(rowData)} className="p-button p-button-danger">
+    <button onClick={() => removeFn(rowData)}>
       Remove
     </button>
   );
+
+  const renderEditButton = (rowData:any) => (
+    <button onClick={() => editFn(rowData)}>
+      Edit
+      </button>
+  )
 
   return (
     <div className="card">
@@ -24,6 +30,7 @@ export default function Table({ data, removeFn }: { data: Array<any>, removeFn: 
           <Column key={key} field={key} header={formatHeader(key)} />
         ))}
         <Column body={renderRemoveButton} />
+        <Column body={renderEditButton}/>
       </DataTable>
     </div>
   );
