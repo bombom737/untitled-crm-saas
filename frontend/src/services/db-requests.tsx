@@ -8,7 +8,7 @@ export function addToDatabase(modelType:string, item:any) {
     })
     .then((response) => {
         if (response.status === 200){
-            console.log(`Item added successfully! ${item}`);
+            console.log(`Item added successfully! ${JSON.stringify(item)}`);
         }
     })
     .catch((error) => {
@@ -23,8 +23,7 @@ export function addToDatabase(modelType:string, item:any) {
 }
 
 export function removeFromDatabase(modelType:string, itemId:any) {
-    
-    console.log(`${modelType} ${JSON.stringify(itemId)}`)
+
     apiPost('/user/remove-item', {
         modelType: modelType,
         item: itemId
@@ -53,7 +52,7 @@ export function updateDatabase(modelType:string, item:any) {
     })
     .then((response) => {
         if (response.status === 200){
-            console.log(`Item updated successfully! ${item}`);
+            console.log(`Item updated successfully! ${JSON.stringify(item)}`);
         }
     })
     .catch((error) => {
