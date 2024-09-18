@@ -58,22 +58,24 @@ export default function Customers() {
     });
   };
 
-    function loadCustomerToEdit(customer: Customer) {
-      
-      const editCustomer: Customer ={
-        name: customer.name,
-        email: customer.email,
-        phoneNumber: customer.phoneNumber,
-        leadStatus: customer.leadStatus,
-        dateCreated: customer.dateCreated,
-        jobTitle: customer.jobTitle,
-        industry: customer.industry,
-        customerId: customer.customerId
-      };
-      setCustomerToEdit(editCustomer);
-      setTitle("Edit Customer")
-      setSlidingPane({visible: true});
-    }
+  function loadCustomerToEdit(customer: Customer) {
+    
+    const editCustomer: Customer ={
+      name: customer.name,
+      email: customer.email,
+      phoneNumber: customer.phoneNumber,
+      leadStatus: customer.leadStatus,
+      dateCreated: customer.dateCreated,
+      jobTitle: customer.jobTitle,
+      industry: customer.industry,
+      customerId: customer.customerId
+    };
+
+    console.log(customer.customerId)
+    setCustomerToEdit(editCustomer);
+    setTitle("Edit Customer")
+    setSlidingPane({visible: true});
+  };
   
     // Remove customer locally and then update the database
     async function removeCustomer (customerId: number) {
@@ -85,9 +87,9 @@ export default function Customers() {
   function saveCustomer(customer: Customer) {
     const existingCustomer = customerArray.find((c) => c.customerId === customer.customerId);
     if (existingCustomer) {
+      console.log(`Existing customer ID: ${existingCustomer.customerId}`)
       // Update customer locally and then update in the database
       updateDatabase("customerModel", customer);
-
       setCustomerArray(prevArray => 
         prevArray.map(c => c.customerId === customer.customerId ? customer : c)
       );
@@ -103,7 +105,7 @@ export default function Customers() {
           email: customer.email,
           phoneNumber: customer.phoneNumber,
           leadStatus: customer.leadStatus,
-          dateCreated: `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getMonth() + 1 < 10 ? '0' + date.getMonth() : date.getMonth()}-${date.getFullYear()}`,
+          dateCreated: `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)}-${date.getFullYear()}`,
           jobTitle: customer.jobTitle,
           industry: customer.industry,
           customerId: id

@@ -126,14 +126,15 @@ router.post('/update-item', authenticateToken, async (req, res) => {
         return res.status(400).send('Missing model type or item data');
     }
     try {
+        console.log(item.customerId)
         const user = await UserModel.findOne({ id: req.user.id });
 
         if (!user) return res.status(404).send('User not found');
 
         if (modelType === 'customerModel') {
-            await customerModel.findOneAndUpdate({ owningUser: user.id}, item)
+            await customerModel.findOneAndUpdate({ owningUser: user.id, customerId: item.customerId}, item)
         } else if (modelType === 'saleModel') {
-            await saleModel.findOneAndUpdate({ owningUser: user.id}, item)
+            await saleModel.findOneAndUpdate({ owningUser: user.id, saleId: item.saleId}, item)
         } else {
             return res.status(400).send('Invalid model type');
         }
