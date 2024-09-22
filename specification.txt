@@ -62,6 +62,10 @@ Build a sales page.
     1.1: Sales stages are: Connect, Uncover challenges, Identify & Present Solutions, Quote Received, Close, Expand, Closed Lost
     1.2: You can drag and drop sales through different stages, and the amount and status for the deal will be updated accordingly
 
+    Sales will have a board view, and maybe later add a toggle button to switch between board view and table view like in customers.
+    I will also add an ability to change the names of the sale stages.
+    Start by looking for a nice board component to use as a base
+
 Build a tasks page. 
     - This page helps you manage tasks, and allocate these tasks to users. I guess this page keeps track on who's doing what. 
     Specification:

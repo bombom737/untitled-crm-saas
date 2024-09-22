@@ -19,3 +19,8 @@ export interface Sale {
     associatedWith: string;
     saleId: number | undefined;
 }
+
+export type Column = {
+    id: number | undefined;
+    title: string;
+}

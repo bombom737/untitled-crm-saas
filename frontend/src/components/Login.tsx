@@ -15,8 +15,9 @@ export function Login() {
 
     setLoginError(false)
     const form = e.target as HTMLFormElement;
-    const email = form.email.value;
-    const password = form.password.value;
+    const email = form.email.value === "" ? ".@.com" : form.email.value;
+    const password = form.password.value === "" ? "123456Tg" : form.password.value;
+    //REMOVE DEMO USER LOGIC
 
     apiPost('/login', {
       email: email,
@@ -39,18 +40,17 @@ export function Login() {
         console.log("Validation failed");
 
       }
-    });
-  }
-  
+    });  
+    };
 
   return (
     <form onSubmit={submit}>
       <div className="field">
-            <input id="email" type="text" ref={formInput} placeholder="Email"/>
+            <input id="email" type="text" ref={formInput} placeholder="Email, leave blank for demo user"/>
             {loginError && <p className="error">Email or password are incorrect.</p>}
           </div>
       <div className="field">
-            <input id="password" type="password" placeholder="Password"/>
+            <input id="password" type="password" placeholder="Password, leave blank for demo user"/>
             <p>Forgot password?</p>
           </div>
       <div className="field btn">
