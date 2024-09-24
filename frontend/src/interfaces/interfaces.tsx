@@ -24,3 +24,9 @@ export type Column = {
     id: number | undefined;
     title: string;
 }
+
+export type Task = {
+    id: number | undefined;
+    columnId: number | undefined;
+    content: string;
+}
