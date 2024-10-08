@@ -43,7 +43,7 @@ export default function Base({ viewComponent }: BaseProps) {
         <NavbarDarkExample username={getFirstName()} />
       </div>
       <div className="container">
-        <div className='white-background'>
+        <div className='base-container'>
           {viewComponent}
         </div>
       </div>

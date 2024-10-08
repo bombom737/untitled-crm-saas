@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import './SignUp.css';
-import { apiPost } from "../services/axios-api.tsx"
-import { validateEmail } from "../services/helpers.tsx"
+import { apiPost } from "../../services/axios-api.tsx"
+import { validateEmail } from "../../services/helpers.tsx"
 
 interface User {
   firstName: string;

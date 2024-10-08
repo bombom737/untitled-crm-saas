@@ -27,7 +27,7 @@ export default function Table({ data, editFn, removeFn }: { data: Array<any>, ed
     <div className="card">
       <DataTable value={data} scrollable scrollHeight="400px">
         {filteredKeys.map((key) => (
-          <Column key={key} field={key} header={formatHeader(key)} />
+          <Column key={key} field={key} header={formatHeader(key) + `There is a bug where headers aren't displayed properly`} />
         ))}
         <Column body={renderRemoveButton} />
         <Column body={renderEditButton}/>

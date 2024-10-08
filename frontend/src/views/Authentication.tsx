@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Login } from "../components/Login";
-import { SignUp } from "../components/SignUp";
+import { Login } from "../components/Authentication/Login";
+import { SignUp } from "../components/Authentication/SignUp";
 import { useNavigate } from "react-router-dom";
 import { getCookie } from "../services/helpers";
 import './Authentication.css';

@@ -18,7 +18,7 @@ html, body {
     z-index: 0;
 }
 
-.white-background{
+.base-container{
     width: 97vw;
     height: 90vh;
     background-color: white;

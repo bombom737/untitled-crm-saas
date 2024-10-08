@@ -10,9 +10,9 @@ export interface Customer {
 }
 
 export interface Sale {
-    buyerName: string;
+    dealName: string;
     dealStage: string;
-    amount: string;
+    amount: number;
     closeDate: string;
     saleType: string;
     priority: string;
@@ -25,8 +25,8 @@ export type Column = {
     title: string;
 }
 
-export type Task = {
+export type SaleCard = {
     id: number | undefined;
     columnId: number | undefined;
-    content: string;
+    sale: Sale;
 }

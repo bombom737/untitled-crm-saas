@@ -1,30 +1,30 @@
 import { useMemo, useState } from "react";
-import { Column, Task } from "../interfaces/interfaces"
-import TrashIcon from "../icons/TrashIcon"
+import { Column, Sale, SaleCard } from "C:/Users/tooto/Desktop/SVCollege/Homework/week-22/frontend/src/interfaces/interfaces"
+import TrashIcon from "C:/Users/tooto/Desktop/SVCollege/Homework/week-22/frontend/src/icons/TrashIcon.tsx"
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import PlusIcon from "../icons/PlusIcon";
-import TaskCard from "./TaskCard";
+import SaleCardComponent from "./SaleCardComponent";
 
 interface Props {
     column: Column;
     deleteColumn: (id: number) => void;
     updateColumn: (id: number, title: string) => void;
-    createTask: (columnId: number) => void;
-    tasks: Task[];
-    deleteTask: (id: number) => void;
-    updateTask: (id: number, content: string) => void;
+    saleCards: SaleCard[];
+    deleteSaleCard: (id: number) => void;
+    updateSaleCard: (id: number, content: Sale) => void;
+    editMode: boolean;
+    loadSaleToEdit: (sale: Sale) => void;
 }
 
 
 function ColumnContainer(props: Props) {
-  const { column, deleteColumn, updateColumn, createTask, tasks, deleteTask, updateTask } = props
+  const { column, deleteColumn, updateColumn, saleCards, deleteSaleCard, updateSaleCard, editMode, loadSaleToEdit} = props
 
-  const [editMode, setEditMode] = useState(false);
+  const [editTitle, setEditTitle] = useState(false);
 
-  const tasksIds = useMemo(() => {
-    return tasks.map(task => task.id).filter(id => id !== undefined)
-  }, [tasks])
+  const saleCardsIds = useMemo(() => {
+    return saleCards.map(sale => sale.id).filter(id => id !== undefined)
+  }, [saleCards])
 
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = 
   useSortable({
@@ -33,7 +33,7 @@ function ColumnContainer(props: Props) {
       type: 'Column',
       column
     },
-    disabled: editMode,
+    disabled: editTitle || !editMode,
   });
   
   const style = {
@@ -49,7 +49,7 @@ function ColumnContainer(props: Props) {
         style={style}
         className="
         bg-columnBackgroundColor
-        w-[350px]
+        w-[300px]
         h-[500px]
         opacity-60
         border-2
@@ -70,29 +70,28 @@ function ColumnContainer(props: Props) {
       style={style}
       className="
       bg-columnBackgroundColor
-      w-[350px]
+      w-[300px]
       h-[500px]
       max-h-[500px]
       rounded-md
       flex
       flex-col
+      text-white
     "
     >
       {/* {Column Title} */}
       <div 
         {...attributes}
         {...listeners}
-        onClick={() => setEditMode(true)}
+        onClick={() => editMode ? setEditTitle(true) : null}
         className="
         bg-mainBackgroundColor
         text-md
         h-[60px]
-        cursor-grab
-        rounded-md
+        rounded
         rounded-b-none
         p-3
         font-bold
-        border-4
         flex
         items-center
         justify-between
@@ -108,8 +107,8 @@ function ColumnContainer(props: Props) {
             py-1
             text-sm
             rounded-full
-          ">0</div>
-          {!editMode ? column.title : 
+          ">{saleCards.length}</div>
+          {!editTitle ? column.title : 
           <input 
               className="
                 bg-black
@@ -122,10 +121,10 @@ function ColumnContainer(props: Props) {
               defaultValue={column.title}
               onChange={(e) => {updateColumn(column.id!, e.target.value)}}
               autoFocus 
-              onBlur={() => setEditMode(false)} 
+              onBlur={() => setEditTitle(false)} 
               onKeyDown={(e) => {
                 if (e.key !== "Enter") return
-                setEditMode(false)
+                setEditTitle(false)
               }}
               placeholder="Edit Title"/>}
         </div>
@@ -140,18 +139,26 @@ function ColumnContainer(props: Props) {
         rounded
         px1
         py-2
-      "><TrashIcon/></button>
+      ">{editMode && <TrashIcon/>}</button>
       </div>
 
         
       <div className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto">
-        <SortableContext items={tasksIds}>
-          {tasks.map(task => (
-            <TaskCard key={task.id} task={task} deleteTask={deleteTask} updateTask={updateTask}/>
+        <SortableContext items={saleCardsIds}>
+          {saleCards.map(saleCard => (
+            <SaleCardComponent 
+              key={saleCard.id} 
+              saleCard={saleCard} 
+              deleteSaleCard={deleteSaleCard} 
+              updateSaleCard={updateSaleCard}
+              loadSaleToEdit={loadSaleToEdit}
+              />
           ))}
         </SortableContext>
       </div>
-      <button className="
+      
+      <div className="
+        bg-black
         flex 
         gap-2 
         items-center 
@@ -159,14 +166,9 @@ function ColumnContainer(props: Props) {
         border-2 
         rounded-md 
         p-4 
-        hover:bg-mainBackgroundColor 
-        hover:text-rose-500
-        active:bg-black
-      "
-      onClick={() => {
-        createTask(column.id!)
-      }}
-      ><PlusIcon/>Add task</button> 
+        "> Total: {0}
+        
+      </div>
     </div>
   )
 }
