@@ -66,7 +66,7 @@ Build a sales page.
     I will also add an ability to change the names of the sale stages. DONE
     Start by looking for a nice board component to use as a base DONE
     Display information in easy to edit and easy to read format. Steps to get there:
-        1: reorganize data collection, update process, and deletion. I need to finish setting up the data storage and management in the sales view. sale creation, update, and deletion all starts from the sales view. i also need a refresh for every time a component updates or creates. : CREATION TO BE IMPLEMENTED UPDATE OK DELETION TO BE IMPLEMENTED refactor in progress, want sales view to house all arrays and functions related to columns and sales
+        1: reorganize data collection, update process, and deletion. I need to finish setting up the data storage and management in the sales view. sale creation, update, and deletion DONE
         2: display data differently. I want to do something similar to hubSpot where the sale name is displayed on the top of the card and the sale amount is displayed at the bottom of the card.
         3: implement database integration. basically save all information about the sale and sale stage in the database.
         4: remove old functionality from the Kanban board

@@ -1,41 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sale, SaleCard } from '../interfaces/interfaces';
 import { generateUniqueID } from '../services/helpers';
+import './SaleForm.css';
 
 interface Props {
-    saleCards: Array<SaleCard>;
-    saleToEdit?: Sale; 
-    onSaleValidated: (sale: Sale) => void;
-    onCancel: () => void;
+  saleCards: Array<SaleCard>;  
+  saleToEdit?: Sale; 
+  onSaleValidated: (sale: Sale) => void;
+  onCancel: () => void;
+  onDeleteSale: (id: number) => void;
 }
 
-export default function SaleForm({ saleToEdit, onSaleValidated, onCancel, saleCards} : Props) {
+export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCancel, onDeleteSale } : Props) {
   
-  const initialSale = {
-    dealName: "",
-    dealStage: "",
-    amount: 0,
-    closeDate: "",
-    saleType: "",
-    priority: "",
-    associatedWith: "",
-    saleId: generateUniqueID(saleCards, 100000, 999999)
-  };
-  
-  const [sale, setSale] = useState<Sale>(initialSale);
+  const [sale, setSale] = useState<Sale | undefined>(undefined);
 
   const [errors, setErrors] = useState({
-    dealName: false,
-    dealStage: false,
+    name: false,
     amount: false,
-    closeDate: false,
     saleType: false,
-    priority: false,
-    associatedWith: false,
-    saleId: false,
   });
 
-  const dealNameRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
   const dealStageRef = useRef<HTMLInputElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const closeDateRef = useRef<HTMLInputElement>(null);
@@ -44,39 +30,41 @@ export default function SaleForm({ saleToEdit, onSaleValidated, onCancel, saleCa
   const associatedWithRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setSale(saleToEdit || initialSale);
+    setSale(saleToEdit?.dealName ? saleToEdit : undefined);
   }, [saleToEdit]);
 
   
-  // Conditions for valid customers
+  // Conditions for valid sales
   const conditions = {
-    name: (value: string) => value !== "",
-    phoneNumber: (value: string) => value.length > 7,
-    leadStatus: (value: string) => value !== "",
-    jobTitle: (value: string) => value !== "",
-    industry: (value: string) => value !== "",
+    name: (value: string) => value !== "", // Only validate strings
+    amount: (value: number) => value !== 0 && value < 100000000000000, // Only validate numbers
+    saleType: (value: string) => value !== "", // Only validate strings
   };
   
-  // Validation helper function
-  function validateInput(value: string, validationFn: (value: string) => boolean) {
-    return validationFn(value);
+  // Validation helper function that validates based on the value type
+  function validateInput(value: string | number, validationFn: (value: any) => boolean) {
+    // Use type guards to validate correctly based on the type
+    if (typeof value === "string") {
+      return validationFn(value);
+    } else if (typeof value === "number") {
+      return validationFn(value);
+    }
+    return false; // Invalid type
   }
-
+  
   // Perform all validations and return a boolean if all fields are valid
   function handleValidation() {
-    // const newErrors = {
-    //   name: !validateInput(nameRef.current?.value || "", conditions.name),
-    //   email: validateEmail(emailRef.current?.value || "") === null,
-    //   phoneNumber: !validateInput(phoneNumberRef.current?.value || "", conditions.phoneNumber),
-    //   leadStatus: !validateInput(currentLeadStatus || "", conditions.leadStatus),
-    //   jobTitle: !validateInput(jobTitleRef.current?.value || "", conditions.jobTitle),
-    //   industry: !validateInput(industryRef.current?.value || "", conditions.industry)
-    // };
-
-    // setErrors(newErrors);
-    // return Object.values(newErrors).every((error) => !error);
-    return true
+    const newErrors = {
+      name: !validateInput(nameRef.current?.value || "", conditions.name), 
+      amount: !validateInput(Number(amountRef.current?.value) || 0, conditions.amount), 
+      saleType: !validateInput(saleTypeRef.current?.value || "", conditions.saleType)
+    };
+  
+    setErrors(newErrors);
+    return Object.values(newErrors).every((error) => !error);
   }
+  
+  
 
   // Pass customer info to Customer page 
   function validate(e: React.FormEvent) {
@@ -84,22 +72,33 @@ export default function SaleForm({ saleToEdit, onSaleValidated, onCancel, saleCa
     if (handleValidation()) {
       const saleToSave: Sale = {
         ...sale,
-        dealName: dealNameRef.current?.value || "",
+        dealName: nameRef.current?.value || "",
         dealStage: dealStageRef.current?.value || "",
         amount: Number(amountRef.current?.value) || 0,
         closeDate: closeDateRef.current?.value || "",
         saleType: saleTypeRef.current?.value || "",
         priority: priorityRef.current?.value || "",
         associatedWith: associatedWithRef.current?.value || "",
-        saleId: sale?.saleId
+        saleId: sale?.saleId ?? generateUniqueID(saleCards, 100000, 999999) // Ensure saleId exists
       };
 
-      onSaleValidated(saleToSave); // Pass customer info
+      onSaleValidated(saleToSave); // Pass sale 
     } else {
       console.log('Validation failed, check errors');
     }
+    
   };
 
+  function deleteSaleCard(){
+    const id = saleToEdit ? saleToEdit.saleId : undefined;
+    console.log(saleToEdit);
+    console.log(saleToEdit ? saleToEdit.saleId : undefined);
+    
+    
+    if (!id) throw new Error("Sale not found.");
+    onDeleteSale(id); // Pass id for deletion
+  };
+  
   return (
     <form onSubmit={validate}>
       <div className="createCustomer">
@@ -109,9 +108,9 @@ export default function SaleForm({ saleToEdit, onSaleValidated, onCancel, saleCa
             type="text"
             name="name"
             defaultValue={sale? sale.dealName : ""}
-            ref={dealNameRef}
+            ref={nameRef}
           />
-          {errors.dealName && <div style={{ color: 'red' }}>Please enter a name</div>}
+          {errors.name && <div style={{ color: 'red' }}>Please enter a name</div>}
         </div>
 
         <div>
@@ -123,7 +122,7 @@ export default function SaleForm({ saleToEdit, onSaleValidated, onCancel, saleCa
             placeholder="Enter customer email"
             ref={dealStageRef}
           />
-          {errors.dealStage && <div style={{ color: 'red' }}>Please enter a valid email</div>}
+          {/* {errors.dealStage && <div style={{ color: 'red' }}>Please enter a valid email</div>} */}
         </div>
 
         <div>
@@ -146,7 +145,7 @@ export default function SaleForm({ saleToEdit, onSaleValidated, onCancel, saleCa
             placeholder="Make this a date select"
             ref={closeDateRef}
           />
-          {errors.closeDate && <div style={{ color: 'red' }}>Please enter a date</div>}
+          {/* {errors.closeDate && <div style={{ color: 'red' }}>Please enter a date</div>} */}
         </div>
 
         <div>
@@ -155,26 +154,27 @@ export default function SaleForm({ saleToEdit, onSaleValidated, onCancel, saleCa
             type="text"
             name="saleType"
             defaultValue={sale ? sale.saleType : ""}
-            placeholder="Enter job title"
+            placeholder="Enter sale type"
             ref={saleTypeRef}
           />
           {errors.saleType && <div style={{ color: 'red' }}>Please enter a sale type</div>}
         </div>
 
         <div>
-          <label>priority</label>
+          <label>Priority</label>
           <input
             type="text"
             name="priority"
             defaultValue={sale ? sale.priority : ""}
-            placeholder="Enter industry"
+            placeholder="Make this a dropdown"
             ref={priorityRef}
           />
-          {errors.priority && <div style={{ color: 'red' }}>Please enter priority</div>}
+          {/* {errors.priority && <div style={{ color: 'red' }}>Please enter priority</div>} */}
         </div>
 
-        <button type='submit'>Save Sale</button>
-        <button type="button" onClick={onCancel}>Cancel</button>
+        <button id='save-sale' type='submit'>Save Sale</button>
+        <button id='cancel' type="button" onClick={onCancel}>Cancel</button>
+        {sale && <button id='delete' type='button' onClick={deleteSaleCard}>Delete</button>}
       </div>
     </form>
   );

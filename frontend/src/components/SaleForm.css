@@ -1,0 +1,55 @@
+.createCustomer{
+    margin: 10px;
+    width: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.createCustomer input{
+    height: 34px;
+    border: 1px solid;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.createCustomer label{
+    margin: 5px;
+}
+
+.createCustomer div{
+    padding: 10px;
+    margin-right: 20px;
+}
+
+.createCustomer button{
+    height: 50px;
+    width: 200px;
+    border-radius: 5px;
+    margin: 2px;
+    font-weight: 500;
+}
+
+#save-sale {
+    background: linear-gradient(to right, #003366, #004080, #0059b3, #0073e6);
+    color: rgb(231, 224, 224);
+    border-radius: 5px;
+    padding: 10px;
+    background-clip: padding-box; 
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#cancel{
+    border: 2px solid #003366;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#delete{
+    border: 2px solid rgb(214, 47, 47);
+    color: rgb(214, 47, 47);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.slide-pane__content{
+    overflow: hidden;
+}

@@ -87,8 +87,18 @@ export default function Sales() {
   }
   
   function deleteSaleCard(id: number) {
-    const newSaleCard = saleCards.filter((sale) => sale.id !== id)
+    
+    const saleToDelete = saleCards.find((saleCard) => saleCard.sale.saleId === id)
+    console.log(saleToDelete);
+    
+
+    if (!saleToDelete) {
+      throw new Error("Sale not found.");
+    }
+
+    const newSaleCard = saleCards.filter((sale) => sale.id !== saleToDelete.id)
     setSaleCards(newSaleCard)
+    closePane();
   }
   
   function updateSaleCard(id: number, saleToUpdate: Sale) {
@@ -175,7 +185,7 @@ export default function Sales() {
       saleType: "",
       priority: "",
       associatedWith: "",
-      saleId: generateUniqueID(saleCards, 100000, 999999),
+      saleId: 0,
     });
     openPane()
   }
@@ -202,11 +212,12 @@ export default function Sales() {
           title={""}
           closePane={closePane}
           display={<SaleForm 
-                    saleToEdit={currentSale} 
-                    onSaleValidated={(sale) => saveSale(sale)} 
-                    onCancel={closePane}
-                    saleCards={saleCards}
-                    />}
+            saleCards={saleCards}        
+            saleToEdit={currentSale} 
+            onSaleValidated={(sale) => saveSale(sale)} 
+            onCancel={closePane}
+            onDeleteSale={(id) => deleteSaleCard(id)}
+            />}
           ></SlidePane>
         </div>
     </div>
