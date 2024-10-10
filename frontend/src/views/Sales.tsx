@@ -38,7 +38,7 @@ export default function Sales() {
 
   const [sampleSale1] = useState<Sale>({
     dealName: "Woah",
-    dealStage: "column",
+    dealStage: "Appointment scheduled",
     amount: 40404,
     closeDate: "18/08/2025",
     saleType: "",
@@ -49,7 +49,7 @@ export default function Sales() {
 
   const [sampleSale2] = useState<Sale>({
     dealName: "Woah",
-    dealStage: "column",
+    dealStage: "Uncover challenges",
     amount: 40404,
     closeDate: "18/08/2025",
     saleType: "",
@@ -90,7 +90,6 @@ export default function Sales() {
     
     const saleToDelete = saleCards.find((saleCard) => saleCard.sale.saleId === id)
     console.log(saleToDelete);
-    
 
     if (!saleToDelete) {
       throw new Error("Sale not found.");
@@ -102,9 +101,15 @@ export default function Sales() {
   }
   
   function updateSaleCard(id: number, saleToUpdate: Sale) {
-    const newSaleCards = saleCards.map((sale) => {
-      if (sale.id !== id) return sale;
-      return { ...sale, sale: saleToUpdate };
+    
+    const newColumn = columns.find((col) => col.title === saleToUpdate.dealStage);
+    
+    if (!newColumn) throw new Error("Column not found.")
+    
+      const newSaleCards = saleCards.map((saleCard) => {
+      if (saleCard.id !== id) return saleCard;
+
+      return { ...saleCard, columnId: newColumn.id, sale: saleToUpdate };
     });
     setSaleCards(newSaleCards);
   }
@@ -134,7 +139,7 @@ export default function Sales() {
       if (col.id  !== id) return col
       return {...col, title}
     })
-    setColumns(newColumns)
+    setColumns(newColumns);
   }
   
   function openPane() {
@@ -145,32 +150,23 @@ export default function Sales() {
     setSlidingPane( {visible: false });
   };
 
-  function loadSaleToEdit(sale: Sale) {
-    
-    const saleToEdit: Sale ={
-      dealName: sale.dealName,
-      dealStage: sale.dealStage,
-      amount: sale.amount,
-      closeDate: sale.closeDate,
-      saleType: sale.saleType,
-      priority: sale.priority,
-      associatedWith: sale.associatedWith,
-      saleId: sale.saleId
-    };
-
-    setCurrentSale(saleToEdit);
+  function loadSale(sale: Sale) {
+    setCurrentSale(sale);
     setSlidingPane({visible: true});
   };
 
  function saveSale(saleToSave: Sale) {
-  console.log(saleToSave)
+  const column = columns.find((col) => col.title === saleToSave.dealStage);
+  if (!column) {
+    console.error(`Column not found. Column searched: ${saleToSave.dealStage || "Empty string"}`);
+    return
+  }
+
   const existingSale = saleCards.find((sale) => sale.sale.saleId === saleToSave.saleId)
-  console.log(existingSale);
-  
   if (existingSale){
-    updateSaleCard(existingSale.id as number, saleToSave)
+    updateSaleCard(existingSale.id as number, saleToSave);
   } else {
-    createSaleCard(696969, saleToSave)
+    createSaleCard(column?.id || 616969, saleToSave)
   }
 
   closePane()
@@ -179,24 +175,23 @@ export default function Sales() {
   function createSale(){
     setCurrentSale({
       dealName: "",
-      dealStage: "",
+      dealStage: columns[0].title,
       amount: 0,
       closeDate: "",
       saleType: "",
       priority: "",
       associatedWith: "",
-      saleId: 0,
+      saleId: generateUniqueID(saleCards, 100000, 999999),
     });
     openPane()
   }
-
 
   return (
     <div>
       <KanbanBoard 
         columns={columns} 
         saleCards={saleCards} 
-        loadSaleToEdit={loadSaleToEdit}
+        loadSale={loadSale}
         updateSaleCard={updateSaleCard}
         deleteSaleCard={deleteSaleCard}
         createNewColumn={createNewColumn}
@@ -212,7 +207,8 @@ export default function Sales() {
           title={""}
           closePane={closePane}
           display={<SaleForm 
-            saleCards={saleCards}        
+            saleCards={saleCards}   
+            columns={columns}     
             saleToEdit={currentSale} 
             onSaleValidated={(sale) => saveSale(sale)} 
             onCancel={closePane}

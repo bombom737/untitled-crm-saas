@@ -13,12 +13,12 @@ interface Props {
     deleteSaleCard: (id: number) => void;
     updateSaleCard: (id: number, content: Sale) => void;
     editMode: boolean;
-    loadSaleToEdit: (sale: Sale) => void;
+    loadSale: (sale: Sale) => void;
 }
 
 
 function ColumnContainer(props: Props) {
-  const { column, deleteColumn, updateColumn, saleCards, deleteSaleCard, updateSaleCard, editMode, loadSaleToEdit} = props
+  const { column, deleteColumn, updateColumn, saleCards, deleteSaleCard, updateSaleCard, editMode, loadSale} = props
 
   const [editTitle, setEditTitle] = useState(false);
 
@@ -151,7 +151,7 @@ function ColumnContainer(props: Props) {
               saleCard={saleCard} 
               deleteSaleCard={deleteSaleCard} 
               updateSaleCard={updateSaleCard}
-              loadSaleToEdit={loadSaleToEdit}
+              loadSale={loadSale}
               />
           ))}
         </SortableContext>

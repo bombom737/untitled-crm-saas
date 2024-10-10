@@ -6,9 +6,9 @@ interface Props {
     saleCard: SaleCard;
     deleteSaleCard: (id: number) => void;
     updateSaleCard: (id: number, content: Sale) => void;
-    loadSaleToEdit: (sale: Sale) => void;
+    loadSale: (sale: Sale) => void;
 }
-function SaleCardComponent({ saleCard, loadSaleToEdit  }: Props) {
+function SaleCardComponent({ saleCard, loadSale  }: Props) {
 
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = 
   useSortable({
@@ -25,7 +25,7 @@ function SaleCardComponent({ saleCard, loadSaleToEdit  }: Props) {
   };
 
   function openEditPane() {
-    loadSaleToEdit(saleCard.sale); 
+    loadSale(saleCard.sale); 
   }
 
   if (isDragging) {
@@ -46,7 +46,7 @@ function SaleCardComponent({ saleCard, loadSaleToEdit  }: Props) {
           border-rose-500
           cursor-grab
           relative
-          task
+          sale
           opacity-30
       " 
       />

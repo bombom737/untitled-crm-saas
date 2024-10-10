@@ -10,7 +10,7 @@ import SaleCardComponent from "./SaleCardComponent";
 interface Props {
   columns: Array<Column>;
   saleCards: Array<SaleCard>;
-  loadSaleToEdit: (sale: Sale) => void;
+  loadSale: (sale: Sale) => void;
   updateSaleCard: (id: number, saleToUpdate: Sale) => void;
   deleteSaleCard: (id: number) => void;
   createNewColumn : () => void;
@@ -20,7 +20,7 @@ interface Props {
   setSaleCards: any;
 }
 
-function KanbanBoard({ columns, saleCards, loadSaleToEdit, updateSaleCard, deleteSaleCard, createNewColumn, updateColumn, deleteColumn, setColumns, setSaleCards }: Props ) {
+function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleCard, createNewColumn, updateColumn, deleteColumn, setColumns, setSaleCards }: Props ) {
     
   const [editMode, setEditMode] = useState(false);
 
@@ -54,10 +54,12 @@ function KanbanBoard({ columns, saleCards, loadSaleToEdit, updateSaleCard, delet
   function OnDragEnd(e: DragEndEvent) {
     const { active, over } = e;
     if (!over) return;
-  
+    
     const activeId = active.id;
     const overId = over.id;
-  
+    
+    console.log(`onDragOver is called, active: ${activeId} over: ${overId}`)
+    
     // Reset the active elements after dragging is complete
     setActiveColumn(null);
     setActiveSale(null);
@@ -66,7 +68,7 @@ function KanbanBoard({ columns, saleCards, loadSaleToEdit, updateSaleCard, delet
       if (activeId === overId) return;
   
       // Move columns
-      setColumns((columns: any[]) => {
+      setColumns((columns: Column[]) => {
         const activeColumnIndex = columns.findIndex(col => col.id === activeId);
         const overColumnIndex = columns.findIndex(col => col.id === overId);
         return arrayMove(columns, activeColumnIndex, overColumnIndex);
@@ -78,14 +80,21 @@ function KanbanBoard({ columns, saleCards, loadSaleToEdit, updateSaleCard, delet
       const activeSale = saleCards.find(sale => sale.id === activeId);
   
       if (activeSale && over.data.current?.type === "Column") {
-        const newColumnId = overId as number;
+        const newColumn = columns.find((col) => col.id === overId as number) || undefined;
+        
+        if (!newColumn) throw new Error("Column not found.")
+     
+          const updatedSaleCard = {
+            ...activeSale,
+            columnId: newColumn.id,
+            sale: { ...activeSale.sale, dealStage: newColumn.title },
+          };
   
-        // Only update the specific sale card being dragged
-        setSaleCards((saleCards: any[]) =>
-          saleCards.map(sale =>
-            sale.id === activeId ? { ...sale, columnId: newColumnId } : sale
-          )
-        );
+          setSaleCards((saleCards: Array<SaleCard>) =>
+            saleCards.map(saleCard =>
+              saleCard.id === activeId ? updatedSaleCard : saleCard
+            )
+          );
       }
     }
   }
@@ -101,31 +110,34 @@ function KanbanBoard({ columns, saleCards, loadSaleToEdit, updateSaleCard, delet
     
     if(activeId === overId) return;
 
-    const isActiveTask = active.data.current?.type === "Sale Card";
-    const isOverTask = over.data.current?.type === "Sale Card";
+    const isActiveSale = active.data.current?.type === "Sale Card";
+    const isOverSale = over.data.current?.type === "Sale Card";
 
-    if (!isActiveTask) return;
+    if (!isActiveSale) return;
 
-    if (isActiveTask && isOverTask) {
-      setSaleCards((saleCard: any[]) => {
-        const activeSaleIndex = saleCard.findIndex(sale => sale.id === activeId);
+    if (isActiveSale && isOverSale) {
+      setSaleCards((saleCards: SaleCard[]) => {
+
+        const activeSaleIndex = saleCards.findIndex(sale => sale.id === activeId);
   
-        const overTaskIndex = saleCard.findIndex(sale => sale.id === overId);
+        const overSaleIndex = saleCards.findIndex(sale => sale.id === overId);
 
-        saleCard[activeSaleIndex].columnId = saleCard[overTaskIndex].columnId
+        saleCards[activeSaleIndex].columnId = saleCards[overSaleIndex].columnId
+        
+        saleCards[activeSaleIndex].sale.dealStage = saleCards[overSaleIndex].sale.dealStage
   
-        return arrayMove(saleCard, activeSaleIndex, overTaskIndex);
+        return arrayMove(saleCards, activeSaleIndex, overSaleIndex);
       });
 
       const isOverColumn = over.data.current?.type === "Column"
 
-      if (isActiveTask && isOverColumn) {
-        setSaleCards((saleCard: any[]) => {
-          const activeSaleIndex = saleCard.findIndex(sale => sale.id === activeId);
+      if (isActiveSale && isOverColumn) {
+        setSaleCards((saleCards: SaleCard[]) => {
+          const activeSaleIndex = saleCards.findIndex(sale => sale.id === activeId);
     
-          saleCard[activeSaleIndex].columnId = overId as number
+          saleCards[activeSaleIndex].columnId = overId as number
     
-          return arrayMove(saleCard, activeSaleIndex, activeSaleIndex);
+          return arrayMove(saleCards, activeSaleIndex, activeSaleIndex);
         });
       }
     }
@@ -160,7 +172,7 @@ function KanbanBoard({ columns, saleCards, loadSaleToEdit, updateSaleCard, delet
                 updateSaleCard={updateSaleCard}
                 saleCards={saleCards.filter((sale) => sale.columnId === col.id)}
                 editMode={editMode}
-                loadSaleToEdit={loadSaleToEdit}
+                loadSale={loadSale}
                 />
               ))}
               </SortableContext>
@@ -190,7 +202,7 @@ function KanbanBoard({ columns, saleCards, loadSaleToEdit, updateSaleCard, delet
                 saleCard={activeSale}
                 deleteSaleCard={deleteSaleCard}
                 updateSaleCard={updateSaleCard}
-                loadSaleToEdit={loadSaleToEdit}
+                loadSale={loadSale}
               />
             )}
             {activeColumn && (
@@ -204,7 +216,7 @@ function KanbanBoard({ columns, saleCards, loadSaleToEdit, updateSaleCard, delet
                   (sale) => sale.columnId === activeColumn.id
                 )}
                 editMode={editMode} 
-                loadSaleToEdit={loadSaleToEdit}    
+                loadSale={loadSale}    
                 />
             )}
           </DragOverlay>

@@ -1,38 +1,44 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sale, SaleCard } from '../interfaces/interfaces';
+import { Column, Sale, SaleCard } from '../interfaces/interfaces';
 import { generateUniqueID } from '../services/helpers';
 import './SaleForm.css';
 
 interface Props {
   saleCards: Array<SaleCard>;  
+  columns: Array<Column>;
   saleToEdit?: Sale; 
   onSaleValidated: (sale: Sale) => void;
   onCancel: () => void;
   onDeleteSale: (id: number) => void;
 }
 
-export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCancel, onDeleteSale } : Props) {
+export default function SaleForm({ saleCards, columns, saleToEdit, onSaleValidated, onCancel, onDeleteSale } : Props) {
   
-  const [sale, setSale] = useState<Sale | undefined>(undefined);
-
   const [errors, setErrors] = useState({
     name: false,
     amount: false,
     saleType: false,
   });
 
-  const nameRef = useRef<HTMLInputElement>(null);
-  const dealStageRef = useRef<HTMLInputElement>(null);
+  const dealNameRef = useRef<HTMLInputElement>(null);
+  const dealStageRef = useRef<HTMLSelectElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const closeDateRef = useRef<HTMLInputElement>(null);
   const saleTypeRef = useRef<HTMLInputElement>(null);
   const priorityRef = useRef<HTMLInputElement>(null);
   const associatedWithRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setSale(saleToEdit?.dealName ? saleToEdit : undefined);
-  }, [saleToEdit]);
-
+useEffect(() => {
+    if (saleToEdit) {
+      if (dealNameRef.current) dealNameRef.current.value = saleToEdit.dealName || "";
+      if (dealStageRef.current) dealStageRef.current.value = saleToEdit.dealStage || columns[0]?.title || "";
+      if (amountRef.current) amountRef.current.value = saleToEdit.amount?.toString() || "0";
+      if (closeDateRef.current) closeDateRef.current.value = saleToEdit.closeDate || "";
+      if (saleTypeRef.current) saleTypeRef.current.value = saleToEdit.saleType || "";
+      if (priorityRef.current) priorityRef.current.value = saleToEdit.priority || "";
+      if (associatedWithRef.current) associatedWithRef.current.value = saleToEdit.associatedWith || "";
+    }
+  }, [saleToEdit, columns]);
   
   // Conditions for valid sales
   const conditions = {
@@ -55,9 +61,9 @@ export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCan
   // Perform all validations and return a boolean if all fields are valid
   function handleValidation() {
     const newErrors = {
-      name: !validateInput(nameRef.current?.value || "", conditions.name), 
-      amount: !validateInput(Number(amountRef.current?.value) || 0, conditions.amount), 
-      saleType: !validateInput(saleTypeRef.current?.value || "", conditions.saleType)
+      name: !validateInput(dealNameRef.current?.value || "", conditions.name),
+      amount: !validateInput(Number(amountRef.current?.value) || 0, conditions.amount),
+      saleType: !validateInput(saleTypeRef.current?.value || "", conditions.saleType),
     };
   
     setErrors(newErrors);
@@ -71,15 +77,14 @@ export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCan
     e.preventDefault();
     if (handleValidation()) {
       const saleToSave: Sale = {
-        ...sale,
-        dealName: nameRef.current?.value || "",
-        dealStage: dealStageRef.current?.value || "",
+        dealName: dealNameRef.current?.value || "",
+        dealStage: dealStageRef.current?.value || columns[0]?.title || "",
         amount: Number(amountRef.current?.value) || 0,
         closeDate: closeDateRef.current?.value || "",
         saleType: saleTypeRef.current?.value || "",
         priority: priorityRef.current?.value || "",
         associatedWith: associatedWithRef.current?.value || "",
-        saleId: sale?.saleId ?? generateUniqueID(saleCards, 100000, 999999) // Ensure saleId exists
+        saleId: saleToEdit?.saleId || generateUniqueID(saleCards, 100000, 999999),
       };
 
       onSaleValidated(saleToSave); // Pass sale 
@@ -106,23 +111,24 @@ export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCan
           <label>Name *</label>
           <input
             type="text"
-            name="name"
-            defaultValue={sale? sale.dealName : ""}
-            ref={nameRef}
+            name="dealName"
+            ref={dealNameRef}
           />
           {errors.name && <div style={{ color: 'red' }}>Please enter a name</div>}
         </div>
 
         <div>
           <label>Deal Stage</label>
-          <input
-            type="text"
-            name="email"
-            defaultValue={sale? sale.dealStage : ""}
-            placeholder="Enter customer email"
+          <select
+            name="dealStage"
             ref={dealStageRef}
-          />
-          {/* {errors.dealStage && <div style={{ color: 'red' }}>Please enter a valid email</div>} */}
+          >
+          {columns.map((column) => (
+            <option key={column.id} value={column.title}>
+              {column.title}
+            </option>
+          ))}
+          </select>
         </div>
 
         <div>
@@ -130,7 +136,6 @@ export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCan
           <input
             type="number"
             name="amount"
-            defaultValue={sale? sale.amount : ""}
             ref={amountRef}
           />
           {errors.amount && <div style={{ color: 'red' }}>Please enter a valid amount</div>}
@@ -140,9 +145,7 @@ export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCan
           <label>Close Date</label>
           <input
             type="date"
-            name="date"
-            defaultValue={sale? sale.amount : ""}
-            placeholder="Make this a date select"
+            name="closeDate"
             ref={closeDateRef}
           />
           {/* {errors.closeDate && <div style={{ color: 'red' }}>Please enter a date</div>} */}
@@ -153,7 +156,6 @@ export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCan
           <input
             type="text"
             name="saleType"
-            defaultValue={sale ? sale.saleType : ""}
             placeholder="Enter sale type"
             ref={saleTypeRef}
           />
@@ -165,7 +167,6 @@ export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCan
           <input
             type="text"
             name="priority"
-            defaultValue={sale ? sale.priority : ""}
             placeholder="Make this a dropdown"
             ref={priorityRef}
           />
@@ -174,7 +175,7 @@ export default function SaleForm({ saleCards, saleToEdit, onSaleValidated, onCan
 
         <button id='save-sale' type='submit'>Save Sale</button>
         <button id='cancel' type="button" onClick={onCancel}>Cancel</button>
-        {sale && <button id='delete' type='button' onClick={deleteSaleCard}>Delete</button>}
+        {saleToEdit?.dealName !== "" && <button id='delete' type='button' onClick={deleteSaleCard}>Delete</button>}
       </div>
     </form>
   );
