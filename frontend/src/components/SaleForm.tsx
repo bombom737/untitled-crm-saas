@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Column, Sale, SaleCard } from '../interfaces/interfaces';
 import { generateUniqueID } from '../services/helpers';
 import './SaleForm.css';
+import CircleIcon from '../icons/CircleIcon';
 
 interface Props {
   saleCards: Array<SaleCard>;  
@@ -12,67 +13,54 @@ interface Props {
   onDeleteSale: (id: number) => void;
 }
 
-export default function SaleForm({ saleCards, columns, saleToEdit, onSaleValidated, onCancel, onDeleteSale } : Props) {
+export default function SaleForm({ saleCards, columns, saleToEdit, onSaleValidated, onCancel, onDeleteSale }: Props) {
   
   const [errors, setErrors] = useState({
     name: false,
     amount: false,
     saleType: false,
   });
-
+  
   const dealNameRef = useRef<HTMLInputElement>(null);
   const dealStageRef = useRef<HTMLSelectElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const closeDateRef = useRef<HTMLInputElement>(null);
   const saleTypeRef = useRef<HTMLInputElement>(null);
-  const priorityRef = useRef<HTMLInputElement>(null);
   const associatedWithRef = useRef<HTMLInputElement>(null);
+  const priorityRef = useRef<any>(null);
+  
+  // Define priority options
+  const priorityOptions = [
+    { value: 'No Priority', label: 'No Priority', icon: null },
+    { value: 'Low Priority', label: 'Low', icon: <CircleIcon color='#37d60f' /> },
+    { value: 'Medium Priority', label: 'Medium', icon: <CircleIcon color='#e87b07' /> },
+    { value: 'High Priority', label: 'High', icon: <CircleIcon color='#d90804' /> }
+  ];
 
-useEffect(() => {
+  // Effect to load `saleToEdit` data and set selectedPriority if saleToEdit exists
+  useEffect(() => {
     if (saleToEdit) {
       if (dealNameRef.current) dealNameRef.current.value = saleToEdit.dealName || "";
       if (dealStageRef.current) dealStageRef.current.value = saleToEdit.dealStage || columns[0]?.title || "";
       if (amountRef.current) amountRef.current.value = saleToEdit.amount?.toString() || "0";
       if (closeDateRef.current) closeDateRef.current.value = saleToEdit.closeDate || "";
       if (saleTypeRef.current) saleTypeRef.current.value = saleToEdit.saleType || "";
-      if (priorityRef.current) priorityRef.current.value = saleToEdit.priority || "";
       if (associatedWithRef.current) associatedWithRef.current.value = saleToEdit.associatedWith || "";
+      if (priorityRef) priorityRef.current.value = saleToEdit.priority || "No Priority";
     }
-  }, [saleToEdit, columns]);
-  
-  // Conditions for valid sales
-  const conditions = {
-    name: (value: string) => value !== "", // Only validate strings
-    amount: (value: number) => value !== 0 && value < 100000000000000, // Only validate numbers
-    saleType: (value: string) => value !== "", // Only validate strings
-  };
-  
-  // Validation helper function that validates based on the value type
-  function validateInput(value: string | number, validationFn: (value: any) => boolean) {
-    // Use type guards to validate correctly based on the type
-    if (typeof value === "string") {
-      return validationFn(value);
-    } else if (typeof value === "number") {
-      return validationFn(value);
-    }
-    return false; // Invalid type
-  }
-  
-  // Perform all validations and return a boolean if all fields are valid
+  }, [saleToEdit, columns]);  // Depend on saleToEdit and columns
+
+  // Validation and form submission logic
   function handleValidation() {
     const newErrors = {
-      name: !validateInput(dealNameRef.current?.value || "", conditions.name),
-      amount: !validateInput(Number(amountRef.current?.value) || 0, conditions.amount),
-      saleType: !validateInput(saleTypeRef.current?.value || "", conditions.saleType),
+      name: !dealNameRef.current?.value,
+      amount: !amountRef.current?.value || Number(amountRef.current?.value) <= 0,
+      saleType: !saleTypeRef.current?.value,
     };
-  
     setErrors(newErrors);
-    return Object.values(newErrors).every((error) => !error);
+    return !Object.values(newErrors).includes(true);
   }
-  
-  
 
-  // Pass customer info to Customer page 
   function validate(e: React.FormEvent) {
     e.preventDefault();
     if (handleValidation()) {
@@ -82,28 +70,23 @@ useEffect(() => {
         amount: Number(amountRef.current?.value) || 0,
         closeDate: closeDateRef.current?.value || "",
         saleType: saleTypeRef.current?.value || "",
-        priority: priorityRef.current?.value || "",
+        priority: priorityRef.current?.value || "No Priority",
         associatedWith: associatedWithRef.current?.value || "",
         saleId: saleToEdit?.saleId || generateUniqueID(saleCards, 100000, 999999),
       };
 
-      onSaleValidated(saleToSave); // Pass sale 
+      onSaleValidated(saleToSave);
     } else {
       console.log('Validation failed, check errors');
     }
-    
-  };
+  }
 
   function deleteSaleCard(){
     const id = saleToEdit ? saleToEdit.saleId : undefined;
-    console.log(saleToEdit);
-    console.log(saleToEdit ? saleToEdit.saleId : undefined);
-    
-    
     if (!id) throw new Error("Sale not found.");
-    onDeleteSale(id); // Pass id for deletion
-  };
-  
+    onDeleteSale(id);
+  }
+
   return (
     <form onSubmit={validate}>
       <div className="createCustomer">
@@ -116,7 +99,6 @@ useEffect(() => {
           />
           {errors.name && <div style={{ color: 'red' }}>Please enter a name</div>}
         </div>
-
         <div>
           <label>Deal Stage</label>
           <select
@@ -130,7 +112,6 @@ useEffect(() => {
           ))}
           </select>
         </div>
-
         <div>
           <label>Amount</label>
           <input
@@ -140,7 +121,6 @@ useEffect(() => {
           />
           {errors.amount && <div style={{ color: 'red' }}>Please enter a valid amount</div>}
         </div>
-
         <div>
           <label>Close Date</label>
           <input
@@ -148,9 +128,7 @@ useEffect(() => {
             name="closeDate"
             ref={closeDateRef}
           />
-          {/* {errors.closeDate && <div style={{ color: 'red' }}>Please enter a date</div>} */}
         </div>
-
         <div>
           <label>Sale Type</label>
           <input
@@ -161,21 +139,24 @@ useEffect(() => {
           />
           {errors.saleType && <div style={{ color: 'red' }}>Please enter a sale type</div>}
         </div>
-
         <div>
           <label>Priority</label>
-          <input
-            type="text"
-            name="priority"
-            placeholder="Make this a dropdown"
-            ref={priorityRef}
-          />
-          {/* {errors.priority && <div style={{ color: 'red' }}>Please enter priority</div>} */}
-        </div>
+          <select
+          ref={priorityRef}
+          defaultValue={saleToEdit?.priority || priorityOptions[0].value}>
+            {priorityOptions.map((priority, idx) => (
+            <option key={idx} value={priority.value}>
+              {priority.value}
+            </option>
+          ))}
+          </select>
 
-        <button id='save-sale' type='submit'>Save Sale</button>
-        <button id='cancel' type="button" onClick={onCancel}>Cancel</button>
-        {saleToEdit?.dealName !== "" && <button id='delete' type='button' onClick={deleteSaleCard}>Delete</button>}
+        </div>
+        <div className="buttons">
+          <button id='save-sale' type='submit'>Save Sale</button>
+          <button id='cancel' type="button" onClick={onCancel}>Cancel</button>
+          {saleToEdit?.dealName !== "" && <button id='delete' type='button' onClick={deleteSaleCard}>Delete</button>}
+        </div>
       </div>
     </form>
   );

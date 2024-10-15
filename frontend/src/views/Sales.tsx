@@ -41,8 +41,8 @@ export default function Sales() {
     dealStage: "Appointment scheduled",
     amount: 40404,
     closeDate: "18/08/2025",
-    saleType: "",
-    priority: "",
+    saleType: "Test sale",
+    priority: "No Priority",
     associatedWith: "",
     saleId: 135512,
   });
@@ -52,8 +52,8 @@ export default function Sales() {
     dealStage: "Uncover challenges",
     amount: 40404,
     closeDate: "18/08/2025",
-    saleType: "",
-    priority: "",
+    saleType: "Test sale",
+    priority: "No Priority",
     associatedWith: "",
     saleId: 939234,
   });
@@ -179,7 +179,7 @@ export default function Sales() {
       amount: 0,
       closeDate: "",
       saleType: "",
-      priority: "",
+      priority: "No Priority",
       associatedWith: "",
       saleId: generateUniqueID(saleCards, 100000, 999999),
     });

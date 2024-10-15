@@ -1,6 +1,7 @@
 import { Sale, SaleCard } from "../../interfaces/interfaces"
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import CircleIcon from "../../icons/CircleIcon";
 
 interface Props {
     saleCard: SaleCard;
@@ -74,14 +75,24 @@ function SaleCardComponent({ saleCard, loadSale  }: Props) {
         hover:ring-rose-500
         cursor-grab
         relative
-    "><p className="
-      my-auto
-      h-[90%]
-      w-full
-      overflow-x-hidden
-      overflow-y-auto
-      whitespace-pre-wrap
-    ">{saleCard.sale.dealName}</p>
+    "><div>
+        <p className="
+        my-auto
+        h-[90%]
+        w-full
+        overflow-x-hidden
+        overflow-y-auto
+        whitespace-pre-wrap
+      ">{saleCard.sale.dealName}
+      <br />
+        {saleCard.sale.priority === "Low Priority" ? <div className="
+        flex"><CircleIcon color='#37d60f'/> Low Priority </div>: saleCard.sale.priority === "Medium Priority" ? <div className="
+        flex"><CircleIcon color='#e87b07' /> Medium Priority </div> : saleCard.sale.priority === "High Priority" ? <div className="flex"><CircleIcon color='#d90804' /> High Priority </div> : "" }
+        <br />
+        {saleCard.sale.amount}
+      </p>
+    </div>
+      
     </div>
   )
 }

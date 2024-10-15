@@ -166,7 +166,10 @@ function ColumnContainer(props: Props) {
         border-2 
         rounded-md 
         p-4 
-        "> Total: {0}
+        "> Total: {saleCards
+          .filter((saleCard) => saleCard.columnId === column.id)
+          .reduce((total, saleCard) => total + (saleCard.sale.amount || 0), 0) 
+          }
         
       </div>
     </div>

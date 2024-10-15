@@ -1,4 +1,4 @@
-.createCustomer{
+.createCustomer {
     margin: 10px;
     width: 450px;
     display: flex;
@@ -6,28 +6,36 @@
     justify-content: space-between;
 }
 
-.createCustomer input{
+.createCustomer input {
     height: 34px;
     border: 1px solid;
     border-radius: 5px;
     margin: 5px;
 }
 
-.createCustomer label{
+.createCustomer label {
     margin: 5px;
 }
 
-.createCustomer div{
+.createCustomer div {
     padding: 10px;
     margin-right: 20px;
 }
 
-.createCustomer button{
+.createCustomer button {
     height: 50px;
     width: 200px;
     border-radius: 5px;
     margin: 2px;
     font-weight: 500;
+}
+
+.createCustomer select {
+    height: 34px;
+    width: 100%;
+    border: 1px solid;
+    border-radius: 5px;
+    margin: 5px;
 }
 
 #save-sale {
@@ -39,17 +47,17 @@
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-#cancel{
+#cancel {
     border: 2px solid #003366;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-#delete{
+#delete {
     border: 2px solid rgb(214, 47, 47);
     color: rgb(214, 47, 47);
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.slide-pane__content{
+.slide-pane__content {
     overflow: hidden;
 }
