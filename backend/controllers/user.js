@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import UserModel from '../models/userModel.js';
 import customerModel from '../models/customerModel.js';
 import saleModel from '../models/saleModel.js';
+import columnModel from '../models/columnModel.js';
 
 const router = Router();
 
@@ -71,19 +72,33 @@ router.post('/add-item', authenticateToken, async (req, res) => {
             // Save the updated model
             await newCustomer.save();
         } else if (modelType === 'saleModel') {
-            const newSale = new saleModel({
+            const newSale = {
+                dealName: item.sale.dealName,
+                dealStage: item.sale.dealStage,
+                amount: item.sale.amount,
+                closeDate: item.sale.closeDate,
+                saleType: item.sale.saleType,
+                priority: item.sale.priority,
+                associatedWith: item.sale.associatedWith,
+                saleId: item.sale.saleId
+            };
+
+            const newSaleCard = new saleModel({
                 owningUser: user.id,
-                buyerName: item.buyerName,
-                dealStage: item.dealStage,
-                amount: item.amount,
-                closeDate: item.closeDate,
-                saleType: item.saleType,
-                priority: item.priority,
-                associatedWith: item.associatedWith,
-                saleId: item.saleId
+                id: item.id,
+                columnId: item.columnId,
+                sale: newSale
             });
             // Save the updated model
-            await newSale.save()
+            await newSaleCard.save();
+        } else if (modelType === 'columnModel') {
+            const newColumn = new columnModel({
+                owningUser: user.id,
+                id: item.id,
+                title: item.title
+            });
+            // Save the updated model
+            await newColumn.save()
         } else {
             return res.status(400).send('Invalid model type');
         }
@@ -106,7 +121,9 @@ router.post('/remove-item', authenticateToken, async (req, res) => {
         if (modelType === 'customerModel') {
             await customerModel.deleteOne({ customerId: item.customerId})
         } else if (modelType === 'saleModel') {
-            await saleModel.deleteOne({ saleId: item.saleId})
+            await saleModel.deleteOne({ id: item.id })
+        } else if (modelType === 'columnModel') {
+            await columnModel.deleteOne({ id: item.id })
         } else {
             return res.status(400).send('Invalid model type');
         }
@@ -134,7 +151,9 @@ router.post('/update-item', authenticateToken, async (req, res) => {
         if (modelType === 'customerModel') {
             await customerModel.findOneAndUpdate({ owningUser: user.id, customerId: item.customerId}, item)
         } else if (modelType === 'saleModel') {
-            await saleModel.findOneAndUpdate({ owningUser: user.id, saleId: item.saleId}, item)
+            await saleModel.findOneAndUpdate({ owningUser: user.id, id: item.id}, item)
+        } else if (modelType === 'columnModel') {
+            await columnModel.findOneAndUpdate({ owningUser: user.id, id: item.id }, item)
         } else {
             return res.status(400).send('Invalid model type');
         }
@@ -161,15 +180,19 @@ router.get('/get-model', authenticateToken, async (req, res) => {
 
         if (!user) return res.status(404).send('User not found');
         
+        let result;
+        
         if (modelType === 'customerModel') {
-            const costumers = await customerModel.find({ owningUser: user.id})
-            return res.status(200).json(costumers);
+            result = await customerModel.find({ owningUser: user.id }).lean(); 
         } else if (modelType === 'saleModel') {
-            const sales = await saleModel.find({ owningUser: user.id})
-            return res.status(200).json(sales);
+            result = await saleModel.find({ owningUser: user.id }).lean(); 
+        } else if (modelType === 'columnModel') {
+            result = await columnModel.find({ owningUser: user.id }).lean(); 
         } else {
             return res.status(400).send('Invalid model type');
         }
+        
+        return res.status(200).json(result); 
     } catch (error) {
         console.error('Error getting model:', error);
         res.status(500).send('Server error');

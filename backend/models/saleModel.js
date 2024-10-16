@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
 
 const saleSchema = new mongoose.Schema({
-    owningUser: Number,
-    buyerName: String,
+    dealName: String,
     dealStage: String,
     amount: String,
     closeDate: String,
@@ -12,6 +11,13 @@ const saleSchema = new mongoose.Schema({
     saleId: Number
 });
 
-const saleModel = new mongoose.model('sales', saleSchema)
+const saleCardSchema = new mongoose.Schema({
+    owningUser: Number,
+    id: Number,
+    columnId: Number,
+    sale: saleSchema
+})
+
+const saleModel = new mongoose.model('sales', saleCardSchema)
 
 export default saleModel;

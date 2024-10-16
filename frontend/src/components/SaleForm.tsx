@@ -18,7 +18,6 @@ export default function SaleForm({ saleCards, columns, saleToEdit, onSaleValidat
   const [errors, setErrors] = useState({
     name: false,
     amount: false,
-    saleType: false,
   });
   
   const dealNameRef = useRef<HTMLInputElement>(null);
@@ -55,7 +54,6 @@ export default function SaleForm({ saleCards, columns, saleToEdit, onSaleValidat
     const newErrors = {
       name: !dealNameRef.current?.value,
       amount: !amountRef.current?.value || Number(amountRef.current?.value) <= 0,
-      saleType: !saleTypeRef.current?.value,
     };
     setErrors(newErrors);
     return !Object.values(newErrors).includes(true);
@@ -137,7 +135,6 @@ export default function SaleForm({ saleCards, columns, saleToEdit, onSaleValidat
             placeholder="Enter sale type"
             ref={saleTypeRef}
           />
-          {errors.saleType && <div style={{ color: 'red' }}>Please enter a sale type</div>}
         </div>
         <div>
           <label>Priority</label>

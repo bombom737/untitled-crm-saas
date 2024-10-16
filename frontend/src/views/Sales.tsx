@@ -1,76 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import KanbanBoard from "../components/KanbanBoard/KanbanBoard";
 import SlidePane from "../components/SlidePane";
 import SaleForm from "../components/SaleForm";
 import { Column, Sale, SaleCard } from "../interfaces/interfaces";
 import { generateUniqueID } from "../services/helpers";
+import { addToDatabase, getDatabaseModel, removeFromDatabase } from "../services/db-requests";
 
 export default function Sales() {
   
-  const [columns, setColumns] = useState<Column[]>([{
-    id: 696969,
-    title: "Appointment scheduled"
-  },
-  {
-    id: 636969,
-    title: "Uncover challenges"
-  },
-  {
-    id: 696569,
-    title: "Identify & Present Solutions"
-  },
-  {
-    id: 616969,
-    title: "Quote Received"
-  },
-  {
-    id: 698969,
-    title: "Closed Won"
-  },
-  {
-    id: 696909,
-    title: "Expand"
-  },
-  {
-    id: 696901,
-    title: "Closed Lost"
-  }])
+  const [columns, setColumns] = useState<Column[]>([])
+  
+  const [saleCards, setSaleCards] = useState<Array<SaleCard>>([]);
 
-  const [sampleSale1] = useState<Sale>({
-    dealName: "Woah",
-    dealStage: "Appointment scheduled",
-    amount: 40404,
-    closeDate: "18/08/2025",
-    saleType: "Test sale",
-    priority: "No Priority",
-    associatedWith: "",
-    saleId: 135512,
-  });
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const fetchedColumns: Array<Column> = await getDatabaseModel('columnModel');
 
-  const [sampleSale2] = useState<Sale>({
-    dealName: "Woah",
-    dealStage: "Uncover challenges",
-    amount: 40404,
-    closeDate: "18/08/2025",
-    saleType: "Test sale",
-    priority: "No Priority",
-    associatedWith: "",
-    saleId: 939234,
-  });
+        const saleCards = await getDatabaseModel('saleModel')
 
-  const [saleCards, setSaleCards] = useState<Array<SaleCard>>([
-    { 
-    id: 123456,
-    columnId: 696969,
-    sale: sampleSale1
-    },
-    { 
-      id: 123455,
-      columnId: 636969,
-      sale: sampleSale2
-    },
-  ]);
- 
+        //console.log(Data fetched: \n Columns: ${JSON.stringify(fetchedColumns, null, 2)} \n Sale Cards: ${saleCards}); // Check if data is being logged
+        let newColumns: Array<Column> = []
+
+        if (fetchedColumns) {
+            fetchedColumns.map((column) => {
+                const newColumn = {id: column.id, title: column.title}
+                newColumns.push(newColumn);
+            })
+            setColumns(newColumns);
+         } else {
+            console.error('No data returned');
+         }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+    fetchData();
+  }, []);
+
   const [slidingPane, setSlidingPane] = useState<{visible: boolean, data?: Sale}>({visible: false});
 
   const [currentSale, setCurrentSale] = useState<Sale>();
@@ -123,6 +90,8 @@ export default function Sales() {
     }
 
     setColumns([...columns, newColumn])
+
+    addToDatabase('columnModel', newColumn);
   }
 
   function deleteColumn(id: number) {
@@ -132,14 +101,27 @@ export default function Sales() {
     const newSaleCard = saleCards.filter(sale => sale.columnId !== id)
 
     setSaleCards(newSaleCard)
+
+    removeFromDatabase('columnModel', columns.find((col) => col.id = id));
   }
   
   function updateColumn(id: number, title: string) {
+    const oldTitle = columns.find((column) => column.id === id)?.title
+
+    if(!oldTitle) return
+
     const newColumns = columns.map(col => {
       if (col.id  !== id) return col
       return {...col, title}
     })
     setColumns(newColumns);
+    
+    // Persist change to Deal Stages
+    saleCards.map((saleCard) => {
+      if (saleCard.sale.dealStage === oldTitle) {
+        saleCard.sale.dealStage = title
+      }
+    })
   }
   
   function openPane() {
