@@ -119,12 +119,13 @@ function ColumnContainer(props: Props) {
                 px-2
               "
               defaultValue={column.title}
-              onChange={(e) => {updateColumn(column.id!, e.target.value)}}
               autoFocus 
               onBlur={() => setEditTitle(false)} 
               onKeyDown={(e) => {
-                if (e.key !== "Enter") return
-                setEditTitle(false)
+                if (e.key === "Enter") {
+                  updateColumn(column.id!, (e.target as HTMLInputElement).value);
+                  setEditTitle(false);
+                }
               }}
               placeholder="Edit Title"/>}
         </div>

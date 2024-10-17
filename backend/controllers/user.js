@@ -4,6 +4,7 @@ import UserModel from '../models/userModel.js';
 import customerModel from '../models/customerModel.js';
 import saleModel from '../models/saleModel.js';
 import columnModel from '../models/columnModel.js';
+import { swapItems } from '../services/helperFunctions.js';
 
 const router = Router();
 
@@ -143,7 +144,6 @@ router.post('/update-item', authenticateToken, async (req, res) => {
         return res.status(400).send('Missing model type or item data');
     }
     try {
-        console.log(item.customerId)
         const user = await UserModel.findOne({ id: req.user.id });
 
         if (!user) return res.status(404).send('User not found');
@@ -164,6 +164,37 @@ router.post('/update-item', authenticateToken, async (req, res) => {
         res.status(200).send('Item updated successfully');
     } catch (error) {
         console.error('Error updating item:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.post('/move-items', authenticateToken, async (req, res) => {
+    const { modelType, itemToMoveFrom, itemToMoveTo } = req.body;  
+
+    if (!modelType || !itemToMoveFrom || !itemToMoveTo) {
+        return res.status(400).send('Missing model type or item data');
+    }
+    try {
+        const user = await UserModel.findOne({ id: req.user.id });
+
+        if (!user) return res.status(404).send('User not found');
+
+        if (modelType === 'customerModel') {
+            await swapItems(customerModel, itemToMoveFrom, itemToMoveTo)
+        } else if (modelType === 'saleModel') {
+            await swapItems(saleModel, itemToMoveFrom, itemToMoveTo)
+        } else if (modelType === 'columnModel') {
+            await swapItems(columnModel, itemToMoveFrom, itemToMoveTo)
+        } else {
+            return res.status(400).send('Invalid model type');
+        }
+
+        await user.save();
+
+        console.log(`Items swapped successfully!`);
+        res.status(200).send('Items swapped successfully!');
+    } catch (error) {
+        console.error('Error swapping items:', error);
         res.status(500).send('Server error');
     }
 });

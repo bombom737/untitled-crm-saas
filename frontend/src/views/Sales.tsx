@@ -4,7 +4,7 @@ import SlidePane from "../components/SlidePane";
 import SaleForm from "../components/SaleForm";
 import { Column, Sale, SaleCard } from "../interfaces/interfaces";
 import { generateUniqueID } from "../services/helpers";
-import { addToDatabase, getDatabaseModel, removeFromDatabase } from "../services/db-requests";
+import { addToDatabase, getDatabaseModel, removeFromDatabase, updateDatabase } from "../services/db-requests";
 
 export default function Sales() {
   
@@ -17,17 +17,28 @@ export default function Sales() {
       try {
         const fetchedColumns: Array<Column> = await getDatabaseModel('columnModel');
 
-        const saleCards = await getDatabaseModel('saleModel')
+        const fetchedsaleCards: Array<SaleCard> = await getDatabaseModel('saleModel')
 
-        //console.log(Data fetched: \n Columns: ${JSON.stringify(fetchedColumns, null, 2)} \n Sale Cards: ${saleCards}); // Check if data is being logged
+        //console.log(Data fetched: \n Columns: ${JSON.stringify(fetchedColumns, null, 2)} \n Sale Cards: ${saleCards}); 
         let newColumns: Array<Column> = []
+        
+        let newSaleCards: Array<SaleCard> = []
 
-        if (fetchedColumns) {
-            fetchedColumns.map((column) => {
-                const newColumn = {id: column.id, title: column.title}
-                newColumns.push(newColumn);
-            })
-            setColumns(newColumns);
+        if (fetchedColumns && fetchedsaleCards) {
+            
+          fetchedColumns.map((column) => {
+              const newColumn = {id: column.id, title: column.title}
+              newColumns.push(newColumn);
+          });
+
+          fetchedsaleCards.map((saleCard) => {
+            const newSaleCard = {id: saleCard.id, columnId: saleCard.columnId, sale: saleCard.sale}
+            newSaleCards.push(newSaleCard);
+          });
+
+          setColumns(newColumns);
+          setSaleCards(newSaleCards);
+          
          } else {
             console.error('No data returned');
          }
@@ -50,6 +61,8 @@ export default function Sales() {
     }
     setSaleCards([...saleCards, newSaleCard])
     console.log(`Created new sale ${JSON.stringify(newSaleCard, null, 2)}`);
+
+    addToDatabase('saleModel', newSaleCard)
     
   }
   
@@ -65,6 +78,8 @@ export default function Sales() {
     const newSaleCard = saleCards.filter((sale) => sale.id !== saleToDelete.id)
     setSaleCards(newSaleCard)
     closePane();
+
+    removeFromDatabase('saleModel', saleToDelete)
   }
   
   function updateSaleCard(id: number, saleToUpdate: Sale) {
@@ -79,6 +94,8 @@ export default function Sales() {
       return { ...saleCard, columnId: newColumn.id, sale: saleToUpdate };
     });
     setSaleCards(newSaleCards);
+
+    updateDatabase('saleModel', {...saleCards.find((saleCard) => saleCard.id === id), columnId: newColumn.id, sale: saleToUpdate })
   }
   
 
@@ -106,6 +123,9 @@ export default function Sales() {
   }
   
   function updateColumn(id: number, title: string) {
+    
+    console.log(`Update column is called for column id ${id}, with new title ${title}`);
+    
     const oldTitle = columns.find((column) => column.id === id)?.title
 
     if(!oldTitle) return
@@ -122,6 +142,8 @@ export default function Sales() {
         saleCard.sale.dealStage = title
       }
     })
+
+    updateDatabase('columnModel', {id: id, title: title})
   }
   
   function openPane() {

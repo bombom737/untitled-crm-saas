@@ -66,6 +66,29 @@ export function updateDatabase(modelType:string, item:any) {
     });
 }
 
+export function moveDatabase(modelType:string, itemToMoveFrom:any, itemToMoveTo:any) {
+    
+    apiPost('/user/move-items', {
+        modelType: modelType,
+        itemToMoveFrom: itemToMoveFrom,
+        itemToMoveTo: itemToMoveTo
+    })
+    .then((response) => {
+        if (response.status === 200){
+            console.log(`Successfully swapped ${JSON.stringify(itemToMoveFrom, null, 2)} and ${JSON.stringify(itemToMoveTo, null, 2)}`);
+        }
+    })
+    .catch((error) => {
+        if (error.response && error.response.status === 404) {
+            console.error('User not found');
+        } else if (error.response && error.response.status === 400){
+            console.error('Error fetching data: ' + error);
+        } else {
+            console.error('Internal server error: ' + error);
+        }
+    });
+}
+
 export async function getDatabaseModel(modelType: string): Promise<any> {
     return apiFetch('/user/get-model', { modelType: modelType })
         .then(response => {

@@ -6,6 +6,7 @@ import { DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent, P
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import SaleCardComponent from "./SaleCardComponent";
+import { moveDatabase } from "../../services/db-requests";
 
 interface Props {
   columns: Array<Column>;
@@ -52,13 +53,12 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
   
 
   function OnDragEnd(e: DragEndEvent) {
+    console.log(`OnDragEnd called`);
     const { active, over } = e;
     if (!over) return;
     
     const activeId = active.id;
     const overId = over.id;
-    
-    console.log(`onDragOver is called, active: ${activeId} over: ${overId}`)
     
     // Reset the active elements after dragging is complete
     setActiveColumn(null);
@@ -71,6 +71,7 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
       setColumns((columns: Column[]) => {
         const activeColumnIndex = columns.findIndex(col => col.id === activeId);
         const overColumnIndex = columns.findIndex(col => col.id === overId);
+        moveDatabase('columnModel', columns[activeColumnIndex], columns[overColumnIndex])
         return arrayMove(columns, activeColumnIndex, overColumnIndex);
       });
       return;
@@ -101,7 +102,9 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
   
 
   function onDragOver(e: DragOverEvent) {
-        const { active, over } = e;
+    console.log(`onDragOver called`);
+    
+    const { active, over } = e;
 
     if (!over ) return;
 
@@ -112,7 +115,7 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
 
     const isActiveSale = active.data.current?.type === "Sale Card";
     const isOverSale = over.data.current?.type === "Sale Card";
-
+    
     if (!isActiveSale) return;
 
     if (isActiveSale && isOverSale) {
@@ -136,7 +139,7 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
           const activeSaleIndex = saleCards.findIndex(sale => sale.id === activeId);
     
           saleCards[activeSaleIndex].columnId = overId as number
-    
+
           return arrayMove(saleCards, activeSaleIndex, activeSaleIndex);
         });
       }
