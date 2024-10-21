@@ -1,23 +1,27 @@
 import mongoose from 'mongoose';
 
 const saleSchema = new mongoose.Schema({
-    dealName: String,
-    dealStage: String,
-    amount: String,
-    closeDate: String,
-    saleType: String,
-    priority: String,
-    associatedWith: String,
-    saleId: Number
+    dealName: { type: String, required: true },
+    dealStage: { type: String, required: true },
+    amount: { type: Number, required: true },
+    closeDate:  String,
+    saleType: String, 
+    priority: String, 
+    associatedWith: String, 
+    saleId: { type: Number, required: true }
 });
 
 const saleCardSchema = new mongoose.Schema({
-    owningUser: Number,
-    id: Number,
-    columnId: Number,
+    id: { type: Number, required: true },
+    columnId: { type: Number, required: true },
     sale: saleSchema
 })
 
-const saleModel = new mongoose.model('sales', saleCardSchema)
+const saleCardArraySchema = new mongoose.Schema({
+    owningUser: { type: Number, required: true },
+    saleCards: [saleCardSchema]
+})
+
+const saleModel = mongoose.model('sales', saleCardArraySchema)
 
 export default saleModel;

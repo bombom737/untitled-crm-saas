@@ -6,7 +6,7 @@ import { DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent, P
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import SaleCardComponent from "./SaleCardComponent";
-import { moveDatabase } from "../../services/db-requests";
+import { moveDatabase, updateDatabase } from "../../services/db-requests";
 
 interface Props {
   columns: Array<Column>;
@@ -53,7 +53,6 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
   
 
   function OnDragEnd(e: DragEndEvent) {
-    console.log(`OnDragEnd called`);
     const { active, over } = e;
     if (!over) return;
     
@@ -68,10 +67,12 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
       if (activeId === overId) return;
   
       // Move columns
+      
       setColumns((columns: Column[]) => {
         const activeColumnIndex = columns.findIndex(col => col.id === activeId);
         const overColumnIndex = columns.findIndex(col => col.id === overId);
-        moveDatabase('columnModel', columns[activeColumnIndex], columns[overColumnIndex])
+        console.log(`Moving Columns ${columns[activeColumnIndex].title} and ${columns[overColumnIndex].title}`);
+        moveDatabase('columnModel', activeColumnIndex, overColumnIndex)
         return arrayMove(columns, activeColumnIndex, overColumnIndex);
       });
       return;
@@ -96,14 +97,13 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
               saleCard.id === activeId ? updatedSaleCard : saleCard
             )
           );
+          updateDatabase('saleModel', updatedSaleCard)
       }
     }
   }
   
 
-  function onDragOver(e: DragOverEvent) {
-    console.log(`onDragOver called`);
-    
+  function onDragOver(e: DragOverEvent) {    
     const { active, over } = e;
 
     if (!over ) return;
@@ -121,6 +121,8 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
     if (isActiveSale && isOverSale) {
       setSaleCards((saleCards: SaleCard[]) => {
 
+        console.log('isActiveSale and isOverSale');
+
         const activeSaleIndex = saleCards.findIndex(sale => sale.id === activeId);
   
         const overSaleIndex = saleCards.findIndex(sale => sale.id === overId);
@@ -128,18 +130,22 @@ function KanbanBoard({ columns, saleCards, loadSale, updateSaleCard, deleteSaleC
         saleCards[activeSaleIndex].columnId = saleCards[overSaleIndex].columnId
         
         saleCards[activeSaleIndex].sale.dealStage = saleCards[overSaleIndex].sale.dealStage
-  
+
+        updateDatabase('saleModel', saleCards[activeSaleIndex]);
+        moveDatabase('saleModel', activeSaleIndex, overSaleIndex);
         return arrayMove(saleCards, activeSaleIndex, overSaleIndex);
       });
 
       const isOverColumn = over.data.current?.type === "Column"
 
       if (isActiveSale && isOverColumn) {
+        
         setSaleCards((saleCards: SaleCard[]) => {
           const activeSaleIndex = saleCards.findIndex(sale => sale.id === activeId);
     
           saleCards[activeSaleIndex].columnId = overId as number
-
+          
+          moveDatabase('saleModel', activeSaleIndex, activeSaleIndex);
           return arrayMove(saleCards, activeSaleIndex, activeSaleIndex);
         });
       }

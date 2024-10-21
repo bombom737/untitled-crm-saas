@@ -66,16 +66,16 @@ export function updateDatabase(modelType:string, item:any) {
     });
 }
 
-export function moveDatabase(modelType:string, itemToMoveFrom:any, itemToMoveTo:any) {
+export function moveDatabase(modelType:string, itemToMoveFromIndex:number, itemToMoveToIndex:number) {
     
     apiPost('/user/move-items', {
         modelType: modelType,
-        itemToMoveFrom: itemToMoveFrom,
-        itemToMoveTo: itemToMoveTo
+        itemToMoveFromIndex: itemToMoveFromIndex,
+        itemToMoveToIndex: itemToMoveToIndex
     })
     .then((response) => {
         if (response.status === 200){
-            console.log(`Successfully swapped ${JSON.stringify(itemToMoveFrom, null, 2)} and ${JSON.stringify(itemToMoveTo, null, 2)}`);
+            console.log(`Successfully swapped ${itemToMoveFromIndex} and ${itemToMoveToIndex}`);
         }
     })
     .catch((error) => {

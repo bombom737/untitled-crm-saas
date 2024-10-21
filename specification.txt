@@ -67,7 +67,7 @@ Build a sales page.
     Display information in easy to edit and easy to read format. Steps to get there:
         1: reorganize data collection, update process, and deletion. I need to finish setting up the data storage and management in the sales view. sale creation, update, and deletion DONE
         2: display data differently. I want to do something similar to hubSpot where the sale name is displayed on the top of the card and the sale amount is displayed at the bottom of the card. DONE needs to be polished
-        3: implement database integration. basically save all information about the sale and sale stage in the database. ON IT database refactor needed for cleaner data management, need to update sale card positioning in database, plus fix column movement bug
+        3: implement database integration. DONE column rename doesnt update deal stage resulting in blank deal stage after renaming a column refreshing page and editing sale card on the deal stage, customer page code isnt updated to use refactor database code
         4: remove old functionality from the Kanban board
         5: remove edit mode and add an edit functionality similar to hubSpot, you click on the sale card and a panel with the details in fields pops up and user is free to edit as they wish and save or discard changes
         this is the plan for now

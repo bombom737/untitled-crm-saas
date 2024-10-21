@@ -32,32 +32,15 @@ export async function generateUniqueID(min, max) {
     return id;
 }
 
-export async function swapItems(model, item1, item2) {
-    try {
-      // Find the two items by their ids
-      const itemToMoveFrom = await model.findOne({ id: item1.id });
-      const itemToMoveTo = await model.findOne({ id: item2.id });
+export async function swapItems (array, index1, index2) {
   
-      if (!itemToMoveFrom || !itemToMoveTo) {
-        throw new Error('One or both of the items were not found');
-      }
-  
-      // Dynamically swap all fields except for _id
-      const temp = { ...itemToMoveFrom.toObject(), _id: undefined };
-  
-      for (let key in temp) {
-        if (key !== '_id') {
-          itemToMoveFrom[key] = itemToMoveTo[key];
-          itemToMoveTo[key] = temp[key];
-        }
-      }
-  
-      // Save the updated items back to the database
-      await itemToMoveFrom.save();
-      await itemToMoveTo.save();
-  
-    } catch (error) {
-      console.error('Error swapping items:', error);
-    }
+  if (index1 < 0 || index1 >= array.length || index2 < 0 || index2 >= array.length) {
+      throw new Error('Invalid index for array swap');
   }
+
+  // Perform the swap
+  [array[index1], array[index2]] = [array[index2], array[index1]];
+
+  return array;  // Return the modified array
+};
   

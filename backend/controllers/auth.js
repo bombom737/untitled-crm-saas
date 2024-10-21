@@ -46,17 +46,18 @@ router.post("/register", async (req, res) => {
         console.log("User registered successfully:", email);
         res.status(201).send("User registered successfully!");
 
-        const newColumns = await Promise.all([
-            { owningUser: userId, id: await generateUniqueID(10000000, 99999999), title: "Appointment scheduled" },
-            { owningUser: userId, id: await generateUniqueID(10000000, 99999999), title: "Uncover challenges" },
-            { owningUser: userId, id: await generateUniqueID(10000000, 99999999), title: "Identify & Present Solutions" },
-            { owningUser: userId, id: await generateUniqueID(10000000, 99999999), title: "Quote Received" },
-            { owningUser: userId, id: await generateUniqueID(10000000, 99999999), title: "Closed Won" },
-            { owningUser: userId, id: await generateUniqueID(10000000, 99999999), title: "Expand" },
-            { owningUser: userId, id: await generateUniqueID(10000000, 99999999), title: "Closed Lost" },
-        ]);
+        const defaultColumns = (
+            { owningUser: userId, columns: [ 
+                { id: await generateUniqueID(10000000, 99999999), title: "Appointment scheduled" },
+                { id: await generateUniqueID(10000000, 99999999), title: "Uncover challenges" },
+                { id: await generateUniqueID(10000000, 99999999), title: "Identify & Present Solutions" },
+                { id: await generateUniqueID(10000000, 99999999), title: "Quote Received" },
+                { id: await generateUniqueID(10000000, 99999999), title: "Closed Won" },
+                { id: await generateUniqueID(10000000, 99999999), title: "Expand" },
+                { id: await generateUniqueID(10000000, 99999999), title: "Closed Lost" }
+            ]});
 
-        await columnModel.insertMany(newColumns);
+        await columnModel.insertMany(defaultColumns);
         console.log(`Base columns added for ${email}`);
 
     } catch (error) {

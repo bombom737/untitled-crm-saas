@@ -15,26 +15,29 @@ export default function Sales() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const fetchedColumns: Array<Column> = await getDatabaseModel('columnModel');
+        const fetchedColumns = await getDatabaseModel('columnModel');
 
-        const fetchedsaleCards: Array<SaleCard> = await getDatabaseModel('saleModel')
+        const fetchedsaleCards = await getDatabaseModel('saleModel')
 
-        //console.log(Data fetched: \n Columns: ${JSON.stringify(fetchedColumns, null, 2)} \n Sale Cards: ${saleCards}); 
+        //console.log(`Data fetched: \n Columns: ${JSON.stringify(fetchedColumns, null, 2)} \n Sale Cards: ${saleCards}`); 
         let newColumns: Array<Column> = []
         
         let newSaleCards: Array<SaleCard> = []
 
-        if (fetchedColumns && fetchedsaleCards) {
-            
-          fetchedColumns.map((column) => {
+        if (fetchedColumns && fetchedsaleCards) { 
+
+          const fetchedColumnsArray: Array<Column> = fetchedColumns.columns
+          const fetchedsaleCardsArray: Array<SaleCard> = fetchedsaleCards.saleCards
+                      
+          fetchedColumnsArray.map((column) => {
               const newColumn = {id: column.id, title: column.title}
               newColumns.push(newColumn);
           });
 
-          fetchedsaleCards.map((saleCard) => {
-            const newSaleCard = {id: saleCard.id, columnId: saleCard.columnId, sale: saleCard.sale}
-            newSaleCards.push(newSaleCard);
-          });
+           fetchedsaleCardsArray.map((saleCard) => {
+             const newSaleCard = {id: saleCard.id, columnId: saleCard.columnId, sale: saleCard.sale}
+             newSaleCards.push(newSaleCard);
+           });
 
           setColumns(newColumns);
           setSaleCards(newSaleCards);
@@ -59,17 +62,14 @@ export default function Sales() {
       columnId,
       sale: sale
     }
-    setSaleCards([...saleCards, newSaleCard])
-    console.log(`Created new sale ${JSON.stringify(newSaleCard, null, 2)}`);
 
+    setSaleCards([...saleCards, newSaleCard])
     addToDatabase('saleModel', newSaleCard)
-    
   }
   
   function deleteSaleCard(id: number) {
     
     const saleToDelete = saleCards.find((saleCard) => saleCard.sale.saleId === id)
-    console.log(saleToDelete);
 
     if (!saleToDelete) {
       throw new Error("Sale not found.");
@@ -123,8 +123,6 @@ export default function Sales() {
   }
   
   function updateColumn(id: number, title: string) {
-    
-    console.log(`Update column is called for column id ${id}, with new title ${title}`);
     
     const oldTitle = columns.find((column) => column.id === id)?.title
 

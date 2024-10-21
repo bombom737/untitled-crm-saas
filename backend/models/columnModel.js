@@ -1,11 +1,15 @@
 import mongoose from 'mongoose';
 
 const columnSchema = new mongoose.Schema({
-    owningUser: Number,
-    id: Number,
-    title: String
+    id: { type: Number, required: true },
+    title: { type: String, required: true }
 });
 
-const columnModel = new mongoose.model('columns', columnSchema)
+const columnsArraySchema = new mongoose.Schema({
+    owningUser: { type: Number, required: true },
+    columns: [columnSchema] 
+});
 
-export default columnModel;
+const ColumnModel = mongoose.model('columns', columnsArraySchema);
+
+export default ColumnModel;

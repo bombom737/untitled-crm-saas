@@ -34,7 +34,7 @@ export default function Customers() {
         const data = await getDatabaseModel('customerModel');
         console.log('Data fetched:', data); // Check if data is being logged
         if (data) {
-          setCustomerArray(data); // Update state only if data is valid
+          setCustomerArray(data.customers); // Update state only if data is valid
         } else {
                 console.error('No data returned');
             }
