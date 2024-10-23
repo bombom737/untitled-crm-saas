@@ -70,10 +70,14 @@ router.post('/add-item', authenticateToken, async (req, res) => {
                 customerId: item.customerId
             });
             
-            const userCustomers = await customerModel.findOne({ owningUser: user.id });
+            let userCustomers = await customerModel.findOne({ owningUser: user.id });
 
             if (!userCustomers) {
-                return res.status(404).send('User customers not found');
+                const defaultCustumerArray = {
+                    owningUser: user.id,
+                    customers: []
+                }
+                userCustomers = customerModel.create(defaultCustumerArray)
             }
 
             userCustomers.customers.push(newCustomer)
@@ -212,7 +216,7 @@ router.post('/update-item', authenticateToken, async (req, res) => {
                 { 'customers.customerId': item.customerId, owningUser: user.id }, 
                 { 
                     $set: { 
-                        'customers.$.dealName': item.dealName,
+                        'customers.$.name': item.name,
                         'customers.$.email': item.email,
                         'customers.$.phoneNumber': item.phoneNumber,
                         'customers.$.leadStatus': item.leadStatus,

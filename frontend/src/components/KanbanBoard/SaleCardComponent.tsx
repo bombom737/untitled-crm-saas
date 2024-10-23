@@ -76,21 +76,26 @@ function SaleCardComponent({ saleCard, loadSale  }: Props) {
         cursor-grab
         relative
     "><div>
-        <p className="
-        my-auto
-        h-[90%]
-        w-full
-        overflow-x-hidden
-        overflow-y-auto
-        whitespace-pre-wrap
-      ">{saleCard.sale.dealName}
-      <br />
-        {saleCard.sale.priority === "Low Priority" ? <div className="
-        flex"><CircleIcon color='#37d60f'/> Low Priority </div>: saleCard.sale.priority === "Medium Priority" ? <div className="
-        flex"><CircleIcon color='#e87b07' /> Medium Priority </div> : saleCard.sale.priority === "High Priority" ? <div className="flex"><CircleIcon color='#d90804' /> High Priority </div> : "" }
-        <br />
-        {saleCard.sale.amount}
-      </p>
+        <div className="
+          my-auto
+          h-[90%]
+          w-full
+          overflow-x-hidden
+          overflow-y-auto
+          whitespace-pre-wrap
+        ">
+          <p>{saleCard.sale.dealName}</p>
+          <br />
+          {saleCard.sale.priority === "Low Priority" ? 
+            <div className="flex"><CircleIcon color='#37d60f'/> Low Priority </div> 
+            : saleCard.sale.priority === "Medium Priority" ? 
+            <div className="flex"><CircleIcon color='#e87b07' /> Medium Priority </div> 
+            : saleCard.sale.priority === "High Priority" ? 
+            <div className="flex"><CircleIcon color='#d90804' /> High Priority </div> 
+            : ""}
+          <br />
+          <p>{saleCard.sale.amount}</p>
+      </div>
     </div>
       
     </div>

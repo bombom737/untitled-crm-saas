@@ -19,7 +19,6 @@ export default function Sales() {
 
         const fetchedsaleCards = await getDatabaseModel('saleModel')
 
-        //console.log(`Data fetched: \n Columns: ${JSON.stringify(fetchedColumns, null, 2)} \n Sale Cards: ${saleCards}`); 
         let newColumns: Array<Column> = []
         
         let newSaleCards: Array<SaleCard> = []
@@ -57,6 +56,7 @@ export default function Sales() {
   const [currentSale, setCurrentSale] = useState<Sale>();
 
   function createSaleCard(columnId: number, sale: Sale) {
+    
     const newSaleCard: SaleCard = {
       id: generateUniqueID(saleCards, 100000, 999999),
       columnId,
@@ -100,6 +100,7 @@ export default function Sales() {
   
 
   function createNewColumn() {
+    
     const id = generateUniqueID(columns, 100000, 999999)
     const newColumn: Column = {
       id: id,
@@ -112,6 +113,12 @@ export default function Sales() {
   }
 
   function deleteColumn(id: number) {
+    
+    if(columns.length <= 1) {
+      console.log("Cannot delete last column");
+      return
+    }
+
     const filteredColumn = columns.filter((col) => col.id !== id)
     setColumns(filteredColumn)
 
@@ -134,14 +141,16 @@ export default function Sales() {
     })
     setColumns(newColumns);
     
+    updateDatabase('columnModel', {id: id, title: title})
     // Persist change to Deal Stages
     saleCards.map((saleCard) => {
       if (saleCard.sale.dealStage === oldTitle) {
         saleCard.sale.dealStage = title
+        updateDatabase('saleModel', {...saleCard, sale: {...saleCard.sale, dealStage: title}})
       }
     })
 
-    updateDatabase('columnModel', {id: id, title: title})
+
   }
   
   function openPane() {
