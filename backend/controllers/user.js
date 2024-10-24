@@ -70,18 +70,22 @@ router.post('/add-item', authenticateToken, async (req, res) => {
                 customerId: item.customerId
             });
             
+            // Find existing customer array owned by user
             let userCustomers = await customerModel.findOne({ owningUser: user.id });
 
+            // If not found, create one
             if (!userCustomers) {
                 const defaultCustumerArray = {
                     owningUser: user.id,
                     customers: []
                 }
-                userCustomers = customerModel.create(defaultCustumerArray)
+                userCustomers = await customerModel.create(defaultCustumerArray)
             }
 
+            // Push customer into array
             userCustomers.customers.push(newCustomer)
 
+            //Save the updated document
             await userCustomers.save()
 
         } else if (modelType === 'saleModel') {
@@ -102,15 +106,19 @@ router.post('/add-item', authenticateToken, async (req, res) => {
                 sale: newSale
             });
 
-            const userSaleCards = await saleModel.findOne({ owningUser: user.id });
+            let userSaleCards = await saleModel.findOne({ owningUser: user.id });
 
             if (!userSaleCards) {
-                return res.status(404).send('User sale cards not found');
+                const defaultSaleCardArray = {
+                    owningUser: user.id,
+                    saleCards: []
+                }
+
+                userSaleCards = await saleModel.create(defaultSaleCardArray)
             };
 
             userSaleCards.saleCards.push(newSaleCard);
 
-            // Save the updated document
             await userSaleCards.save();
 
         } else if (modelType === 'columnModel') {
@@ -119,10 +127,15 @@ router.post('/add-item', authenticateToken, async (req, res) => {
                 title: item.title
             });
 
-            const userColumns = await columnModel.findOne({ owningUser: user.id });
+            let userColumns = await columnModel.findOne({ owningUser: user.id });
 
             if (!userColumns) {
-                return res.status(404).send('User columns not found');
+                const defaultColumnArray = {
+                    owningUser: user.id,
+                    columns: []
+                }
+
+                userColumns = await columnModel.create(defaultColumnArray)
             }
 
             userColumns.columns.push(newColumn);
@@ -156,15 +169,20 @@ router.post('/remove-item', authenticateToken, async (req, res) => {
     try {
         if (modelType === 'customerModel') {
             const updatedUserCustomers = await customerModel.findOneAndUpdate(
+                // Find the document owned by user
                 { owningUser: user.id },
+                // Pull the requested item from array, removing it
                 { $pull: { customers: { customerId: item.customerId } } },
+                // Return the new document
                 { new: true }
             );
         
+            // Check if the operation failed and return status 404
             if (!updatedUserCustomers) {
                 console.log('Customer not found or user does not exist');
                 return res.status(404).send('Customer not found or user does not exist');
             }
+
         } else if (modelType === 'saleModel') {
             const updatedUserSaleCards = await saleModel.findOneAndUpdate(
                 { owningUser: user.id },
@@ -176,6 +194,7 @@ router.post('/remove-item', authenticateToken, async (req, res) => {
                 console.log('Sale card not found or user does not exist');
                 return res.status(404).send('Sale card not found or user does not exist');
             }
+
         } else if (modelType === 'columnModel') {
             const updatedUserColumns = await columnModel.findOneAndUpdate(
                 { owningUser: user.id },
@@ -187,6 +206,7 @@ router.post('/remove-item', authenticateToken, async (req, res) => {
                 console.log('Column not found or user does not exist');
                 return res.status(404).send('Column not found or user does not exist');
             }
+
         } else {
             console.log('Invalid model type');
             return res.status(400).send('Invalid model type');
@@ -201,19 +221,23 @@ router.post('/remove-item', authenticateToken, async (req, res) => {
 });
 
 router.post('/update-item', authenticateToken, async (req, res) => {
+    
+    // Find the currently logged-in user using the user info from the token
+    const user = await UserModel.findOne({ id: req.user.id });
+
+    if (!user) return res.status(404).send('User not found');
+
     const { modelType, item } = req.body;  
 
     if (!modelType || !item) {
         return res.status(400).send('Missing model type or item data');
     }
     try {
-        const user = await UserModel.findOne({ id: req.user.id });
-
-        if (!user) return res.status(404).send('User not found');
-
         if (modelType === 'customerModel') {
             const updatedCustomer = await customerModel.findOneAndUpdate(
+                // Find the customer that matches Id and owningUser
                 { 'customers.customerId': item.customerId, owningUser: user.id }, 
+                // Set it to the updated values
                 { 
                     $set: { 
                         'customers.$.name': item.name,
@@ -226,9 +250,11 @@ router.post('/update-item', authenticateToken, async (req, res) => {
                         'customers.$.customerId': item.customerId
                     }
                 },
+                // Return the new document
                 { new: true }
             );
         
+            // Check if the operation failed and return status 404
             if (!updatedCustomer) {
                 return res.status(404).send('Customer not found');
             }
@@ -283,23 +309,28 @@ router.post('/update-item', authenticateToken, async (req, res) => {
 });
 
 router.post('/move-items', authenticateToken, async (req, res) => {
-    const { modelType, itemToMoveFromIndex, itemToMoveToIndex } = req.body;  
+    
+    // Find the currently logged-in user using the user info from the token
+    const user = await UserModel.findOne({ id: req.user.id });
 
+    if (!user) return res.status(404).send('User not found');
+
+    // Get database model, and items to move indexes from request body
+    const { modelType, itemToMoveFromIndex, itemToMoveToIndex } = req.body;  
+    
     if (!modelType || itemToMoveFromIndex === undefined || itemToMoveToIndex === undefined) {
         return res.status(400).send('Missing model type or item data');
     }
     try {
-        const user = await UserModel.findOne({ id: req.user.id });
 
-        if (!user) return res.status(404).send('User not found');
-
-        if (modelType === 'costomerModel') {
+        if (modelType === 'customerModel') {
             const userCustomers = await customerModel.findOne({ owningUser: user.id });
 
             if (!userCustomers) {
                 return res.status(404).send('Customers not found');
             }
 
+            // Use utility function swapItems to swap array indexes 
             await swapItems(userCustomers.customers, itemToMoveFromIndex, itemToMoveToIndex);
 
             await userCustomers.save();
